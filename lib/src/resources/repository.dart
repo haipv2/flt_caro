@@ -25,10 +25,9 @@ class Repository {
     return result;
   }
 
-  User getUserViaLoginId(String loginId) {
-    var result = _firestoreProvider.getUserByLogin(loginId);
-     print('object $result');
+  Future<User> getUserViaLoginId(String loginId) async{
+    User result =await _firestoreProvider.getUserByLogin(loginId);
 
-    return result as User ;
+    return result;
   }
 }

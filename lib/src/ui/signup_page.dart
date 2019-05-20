@@ -371,8 +371,10 @@ class _SignUpState extends State<SignUp> {
         );
         scaffoldSignupKey.currentState.showSnackBar(snackbar);
       } else {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => MyPage(user)));
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => MyPage(user)),
+            (Route<dynamic> route) => false);
       }
     });
 

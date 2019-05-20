@@ -4,8 +4,8 @@ import 'package:flt_caro/src/resources/repository.dart';
 
 class GameBloc{
   final _repository = Repository();
-  User getUserViaLoginId(String loginId, User player)  {
-    User user = _repository.getUserViaLoginId(loginId);
+  Future<User> getUserViaLoginId(String loginId, User player)  async{
+    User user = await _repository.getUserViaLoginId(loginId);
     return user;
 
 

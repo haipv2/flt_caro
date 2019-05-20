@@ -100,7 +100,6 @@ class FirestoreProvider {
   Future<User> getUserByLogin(loginIdInput)async {
     DataSnapshot snapshot = await
         _firebaseDatabase.reference().child(USERS_TBL).once();
-    print('object');
 
     Map<String, dynamic> users = snapshot.value.cast<String, dynamic>();
     User result;

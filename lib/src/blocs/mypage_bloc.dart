@@ -3,8 +3,8 @@ import 'package:flt_caro/src/resources/repository.dart';
 
 class MyPageBloc {
   final _repository = Repository();
-  Future<void> getUserViaLoginId(String loginId, User player) async {
+  Future<User> getUserViaLoginId(String loginId) async {
     var user = await _repository.getUserViaLoginId(loginId);
-    player = user;
+    return user;
   }
 }

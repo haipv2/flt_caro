@@ -1,4 +1,4 @@
-package haipv.app.flt_caro;
+package haipv.app.caro;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
