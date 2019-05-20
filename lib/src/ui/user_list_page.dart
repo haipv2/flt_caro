@@ -108,7 +108,7 @@ class _UserListState extends State<UserList> {
 
     pushIds.forEach((item) {
       String dataURL =
-          '$base/sendNotification2?to=${item.toString()}&fromPushId=$pushIdFrom&fromId=${player1Items}&fromName=${widget.currentUser.firstname}&type=invite';
+          '$base/sendPlayReq?to=${item.toString()}&fromPushId=$pushIdFrom&fromId=${player1Items}&fromName=${widget.currentUser.firstname}&fromGender=${widget.currentUser.gender}&type=invite';
       print(dataURL);
       String gameId = '${player1Items}-${friendsLoginId}';
       FirebaseDatabase.instance
