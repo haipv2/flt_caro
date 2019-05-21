@@ -26,21 +26,21 @@ class Game extends StatefulWidget {
 
   Game.fromLoginId(GameMode gameMode, User player1, String player2LoginId) {
     this.player1 = player1;
-    getUserFromPrefs(player2);
+//    getUserFromPrefs(player2);
     print(player2);
   }
 
   @override
   _GameState createState() => _GameState();
 
-  Future<User> getUserFromPrefs(User player2) async {
-    var userFromPreferences =
-        SharedPreferencesUtils.getUserFromPreferences().then((onValue) {
-      player2 = onValue;
-    });
-    print(player2);
-    return player2;
-  }
+//  Future<User> getUserFromPrefs(User player2) async {
+//    var userFromPreferences =
+//        SharedPreferencesUtils.getUserFromPreferences().then((onValue) {
+//      player2 = onValue;
+//    });
+//    print(player2);
+//    return player2;
+//  }
 }
 
 class _GameState extends State<Game> {
@@ -63,7 +63,12 @@ class _GameState extends State<Game> {
   void initState() {
     bloc = new GameBloc();
     itemlist = doInit();
-    doFristTurn();
+    if(GameMode.single == widget.gameMode) {
+      doFristTurnSingle();
+    }else {
+      doFristTurnWithFriend();
+    }
+
     super.initState();
   }
 
@@ -149,7 +154,7 @@ class _GameState extends State<Game> {
     setState(() {
       itemlist = doInit();
     });
-    doFristTurn();
+    doFristTurnSingle();
   }
 
   void playGame(GameItem item, int cellNumber) {
@@ -394,7 +399,7 @@ class _GameState extends State<Game> {
     );
   }
 
-  void doFristTurn() {
+  void doFristTurnSingle() {
     int firstCell = ((COLUMNS * (ROWS ~/ 2 - 1)) + (COLUMNS ~/ 2));
     var gameItem = GameItem(
       id: firstCell,
@@ -493,6 +498,15 @@ class _GameState extends State<Game> {
               ),
             )
           ]),
+    );
+  }
+
+  void doFristTurnWithFriend() {
+    int firstCell = ((COLUMNS * (ROWS ~/ 2 - 1)) + (COLUMNS ~/ 2));
+    var gameItem = GameItem(
+      id: firstCell,
+      image: Image.asset('assets/images/p$activePlayer.png'),
+      enabled: false,
     );
   }
 }

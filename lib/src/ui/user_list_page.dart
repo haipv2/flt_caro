@@ -101,7 +101,6 @@ class _UserListState extends State<UserList> {
     List<dynamic> pushIds =
         await _userPushBloc.getListPushIdViaLoginId(user.loginId);
 
-    var username = user.firstname;
     var friendsLoginId = user.firstname;
     var base = 'https://us-central1-caro-53f7d.cloudfunctions.net';
     var player1Items = widget.currentUser.loginId;

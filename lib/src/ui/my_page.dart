@@ -98,10 +98,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
       showInvitePopup(context, message);
     } else if (type == 'accept') {
       _bloc.getUserViaLoginId(fromId).then((user2) {
-        print(type);
-
         var currentUser = widget.user;
-
         String gameId = '${currentUser.loginId}-$fromId';
         Navigator.of(context).pushReplacement(new MaterialPageRoute(
             builder: (context) => new Game(
