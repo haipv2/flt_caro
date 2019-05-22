@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class GameItem extends AnimatedWidget {
+class GameItem extends StatefulWidget {
   final id;
   String text;
   Color bg;
@@ -8,25 +8,58 @@ class GameItem extends AnimatedWidget {
   Widget image;
   var activePlayer;
 
-  GameItem({Key key, Animation<
-      double> animation, this.id, this.text = "", this.bg = Colors
-      .orange, this.enabled = true, this.image, this.activePlayer})
-      : super(key: key, listenable: animation);
+  GameItem({
+    Key key,
+    this.id,
+    this.text = "",
+    this.bg = Colors.orange,
+    this.enabled = true,
+    this.image,
+    this.activePlayer,
+  });
+
+  @override
+  _GameItemState createState() => _GameItemState();
+}
+
+class _GameItemState extends State<GameItem>
+    with SingleTickerProviderStateMixin {
+  AnimationController _controller;
+  Animation<double> _animation;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 10000));
+    _animation = Tween<double>(begin: 0.0, end: 50.0)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.elasticIn))
+          ..addListener(() {
+            setState(() {});
+          });
+
+    _controller.forward();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final Animation<double> _animation = listenable;
+    print(_animation.value);
+
     return Center(
       child: Container(
         height: _animation.value,
         width: _animation.value,
-        child: image,
+        child: widget.image,
       ),
     );
   }
-
 }
-
 
 //class GameItem extends StatelessWidget{
 //  final id;

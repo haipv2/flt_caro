@@ -37,7 +37,6 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   AnimationController _controller;
   Animation _firstAnimationMenu;
-  AnimationController _controllerHide;
   Animation _lateAnimationMenu;
   AnimataionCommonStatus animataionCommonStatus;
   MyPageBloc _bloc;
@@ -53,8 +52,6 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     _bloc = new MyPageBloc();
     super.initState();
     _controller =
-        AnimationController(vsync: this, duration: Duration(seconds: 2));
-    _controllerHide =
         AnimationController(vsync: this, duration: Duration(seconds: 2));
 
     _firstAnimationMenu = Tween(begin: -1.0, end: 0).animate(
@@ -226,7 +223,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
                 ),
                 onPressed: () {
                   print('print single mode');
-                  Navigator.of(context).pushReplacement(
+                  Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (BuildContext context) => Game(
                             GameMode.single,
@@ -317,7 +314,10 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
       builder: (BuildContext context, Widget child) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('demo login'),
+            title: Text(
+              'CARO GAME',
+              style: TextStyle(fontFamily: 'indie flower'),
+            ),
 //            leading: Container(),
           ),
           drawer: myPageDrawer(),

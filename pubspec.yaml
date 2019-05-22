@@ -59,6 +59,7 @@ flutter:
       - assets/images/surrender.gif
       - assets/images/mess.gif
       - assets/images/emotion.png
+      - assets/images/letsgo.gif
   fonts:
     - family: indie flower
       fonts:

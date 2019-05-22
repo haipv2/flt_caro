@@ -10,6 +10,7 @@ import 'package:flutter_reactive_button/flutter_reactive_button.dart';
 
 import '../common/game_enums.dart';
 import 'cell.dart';
+import 'fighting_bar.dart';
 import 'game_dialog.dart';
 import 'game_item.dart';
 
@@ -43,13 +44,18 @@ class Game extends StatefulWidget {
 //  }
 }
 
-class _GameState extends State<Game> {
+class _GameState extends State<Game> with TickerProviderStateMixin {
   List<GameItem> itemlist;
   List<int> player1List;
   List<int> player2List;
   var activePlayer;
   int player1Score = 0;
   int player2Score = 0;
+  AnimationController _fightingController;
+  Animation<double> _fightingAnimation;
+
+  AnimationController _player1ImgController;
+  Animation<double> _player1ImgAnimation;
 
   List<ReactiveIconDefinition> _icons = <ReactiveIconDefinition>[
     ReactiveIconDefinition(
@@ -61,14 +67,21 @@ class _GameState extends State<Game> {
 
   @override
   void initState() {
+    _fightingController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 2500))
+          ..addStatusListener(handlerFightingAnimation);
+    _fightingAnimation = Tween(begin: 500.0, end: 0.0).animate(
+        CurvedAnimation(parent: _fightingController, curve: Curves.elasticIn));
+
+
     bloc = new GameBloc();
     itemlist = doInit();
-    if(GameMode.single == widget.gameMode) {
+    if (GameMode.single == widget.gameMode) {
       doFristTurnSingle();
-    }else {
+    } else {
       doFristTurnWithFriend();
     }
-
+    _fightingController.forward().orCancel;
     super.initState();
   }
 
@@ -105,40 +118,52 @@ class _GameState extends State<Game> {
       body: Container(
         decoration: BoxDecoration(color: Colors.white),
         alignment: AlignmentDirectional.bottomEnd,
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.end,
+        child: Stack(
           children: <Widget>[
-            SizedBox(
-              height: 20.0,
-            ),
-            playerInfo(),
-            Expanded(
-              flex: 5,
-              child: new GridView.builder(
-                  padding: EdgeInsets.only(top: 5.0),
-                  gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: COLUMNS,
-                      crossAxisSpacing: 0.5,
-                      mainAxisSpacing: 0.5),
-                  itemCount: itemlist.length,
-                  itemBuilder: (context, i) => new SizedBox(
+            new Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                SizedBox(
+                  height: 20.0,
+                ),
+                playerInfo(),
+                Expanded(
+                  flex: 5,
+                  child: Stack(
+                    children: <Widget>[
+                      new GridView.builder(
+                          padding: EdgeInsets.only(top: 5.0),
+                          gridDelegate:
+                              new SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: COLUMNS,
+                                  crossAxisSpacing: 0.5,
+                                  mainAxisSpacing: 0.5),
+                          itemCount: itemlist.length,
+                          itemBuilder: (context, i) => new SizedBox(
 //                        width: 30.0,
 //                        height: 20.0,
-                        child: new RaisedButton(
-                          padding: const EdgeInsets.all(1.0),
-                          onPressed: itemlist[i].enabled
-                              ? () => playGame(itemlist[i], i)
-                              : null,
-                          child: itemlist[i],
+                                child: new RaisedButton(
+                                  padding: const EdgeInsets.all(1.0),
+                                  onPressed: itemlist[i].enabled
+                                      ? () => playGame(itemlist[i], i)
+                                      : null,
+                                  child: itemlist[i],
 //                          child: Text('$i'),
-                          color: itemlist[i].bg,
-                          disabledColor: itemlist[i].bg,
-                        ),
-                      )),
+                                  color: itemlist[i].bg,
+                                  disabledColor: itemlist[i].bg,
+                                ),
+                              )),
+                    ],
+                  ),
+                ),
+                scoreSection(),
+                surrenderSection(),
+              ],
             ),
-            scoreSection(),
-            surrenderSection(),
+            FightingBar(
+              animation: _fightingAnimation,
+            ),
           ],
         ),
       ),
@@ -446,7 +471,7 @@ class _GameState extends State<Game> {
                     '${widget.player1.firstname}',
                     style: TextStyle(
                       fontFamily: 'indie flower',
-                      fontSize: 25,
+                      fontSize: 23,
                     ),
                   ),
                   Padding(
@@ -492,7 +517,7 @@ class _GameState extends State<Game> {
                   Text('${widget.player2.firstname}',
                       style: TextStyle(
                         fontFamily: 'indie flower',
-                        fontSize: 25,
+                        fontSize: 23,
                       )),
                 ],
               ),
@@ -508,5 +533,14 @@ class _GameState extends State<Game> {
       image: Image.asset('assets/images/p$activePlayer.png'),
       enabled: false,
     );
+  }
+
+  handlerFightingAnimation(status) {
+    if (status == AnimationStatus.completed) {
+//      _fightingController.reset();
+//      _fightingAnimation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+//          parent: _fightingController, curve: Curves.fastOutSlowIn));
+//      _fightingController.forward();
+    }
   }
 }
