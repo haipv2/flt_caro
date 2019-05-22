@@ -36,7 +36,7 @@ class _GameItemState extends State<GameItem>
   @override
   void initState() {
     _controller = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 10000));
+        vsync: this, duration: Duration(milliseconds: 1000));
     _animation = Tween<double>(begin: 0.0, end: 50.0)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.elasticIn))
           ..addListener(() {
@@ -50,7 +50,6 @@ class _GameItemState extends State<GameItem>
   @override
   Widget build(BuildContext context) {
     print(_animation.value);
-
     return Center(
       child: Container(
         height: _animation.value,

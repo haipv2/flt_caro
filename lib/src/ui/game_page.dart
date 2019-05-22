@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flt_caro/src/blocs/game_bloc.dart';
 import 'package:flt_caro/src/common/common.dart';
 import 'package:flt_caro/src/models/user.dart';
-import 'package:flt_caro/src/utils/shared_preferences_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_button/flutter_reactive_button.dart';
 
@@ -27,21 +26,11 @@ class Game extends StatefulWidget {
 
   Game.fromLoginId(GameMode gameMode, User player1, String player2LoginId) {
     this.player1 = player1;
-//    getUserFromPrefs(player2);
     print(player2);
   }
 
   @override
   _GameState createState() => _GameState();
-
-//  Future<User> getUserFromPrefs(User player2) async {
-//    var userFromPreferences =
-//        SharedPreferencesUtils.getUserFromPreferences().then((onValue) {
-//      player2 = onValue;
-//    });
-//    print(player2);
-//    return player2;
-//  }
 }
 
 class _GameState extends State<Game> with TickerProviderStateMixin {
@@ -53,9 +42,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   int player2Score = 0;
   AnimationController _fightingController;
   Animation<double> _fightingAnimation;
-
-  AnimationController _player1ImgController;
-  Animation<double> _player1ImgAnimation;
+//  AnimationController _scoreController;
+//  Animation<double> _scoreAnimation;
 
   List<ReactiveIconDefinition> _icons = <ReactiveIconDefinition>[
     ReactiveIconDefinition(
@@ -66,14 +54,27 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   GameBloc bloc;
 
   @override
+  void dispose() {
+    _fightingController.dispose();
+//    _scoreController.dispose();
+
+    super.dispose();
+  }
+
+  @override
   void initState() {
     _fightingController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 2500))
           ..addStatusListener(handlerFightingAnimation);
     _fightingAnimation = Tween(begin: 500.0, end: 0.0).animate(
         CurvedAnimation(parent: _fightingController, curve: Curves.elasticIn));
-
-
+//    _scoreController =
+//        AnimationController(vsync: this, duration: Duration(milliseconds: 1))
+//          ..addListener(() {
+//            setState(() {});
+//          });
+//    _scoreAnimation = Tween(begin: 0.0, end: 1.0).animate(_scoreController);
+//    _scoreController.forward();
     bloc = new GameBloc();
     itemlist = doInit();
     if (GameMode.single == widget.gameMode) {
@@ -457,72 +458,70 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   Widget scoreSection() {
     return Expanded(
       flex: 1,
-      child: Row(
-//        textDirection: TextDirection.ltr,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-              flex: 6,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                verticalDirection: VerticalDirection.down,
-                children: <Widget>[
-                  Text(
-                    '${widget.player1.firstname}',
-                    style: TextStyle(
-                      fontFamily: 'indie flower',
-                      fontSize: 23,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 15),
-                    child: Text('${player1Score}',
-                        style: TextStyle(
-                          fontSize: 25,
-                        )),
-                  )
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Center(
-                child: Row(
-                  children: <Widget>[
-                    Container(
-                        child: Center(
-                            child: Text(
-                      ':',
-                      style: TextStyle(fontSize: 40),
-                    ))),
-                  ],
+      child:
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+        Expanded(
+          flex: 6,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            verticalDirection: VerticalDirection.down,
+            children: <Widget>[
+              Text(
+                '${widget.player1.firstname}',
+                style: TextStyle(
+                  fontFamily: 'indie flower',
+                  fontSize: 23,
                 ),
               ),
-            ),
-            Expanded(
-              flex: 6,
-              child: Row(
-                verticalDirection: VerticalDirection.down,
-                children: <Widget>[
-                  Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 15),
+              Padding(
+                padding: EdgeInsets.only(left: 15),
+                child: Text('${player1Score}',
+                    style: TextStyle(
+                      fontSize: 25,
+                    )),
+              )
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Center(
+            child: Row(
+              children: <Widget>[
+                Container(
+                    child: Center(
                         child: Text(
-                          '${player2Score}',
-                          style: TextStyle(fontSize: 25),
-                          textAlign: TextAlign.left,
-                        ),
-                      )),
-                  Text('${widget.player2.firstname}',
-                      style: TextStyle(
-                        fontFamily: 'indie flower',
-                        fontSize: 23,
-                      )),
-                ],
-              ),
-            )
-          ]),
+                  ':',
+                  style: TextStyle(fontSize: 40),
+                ))),
+              ],
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 6,
+          child: Row(
+            verticalDirection: VerticalDirection.down,
+            children: <Widget>[
+              Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 15),
+                    child: Text(
+                      '${player2Score}',
+                      style: TextStyle(fontSize: 25),
+                      textAlign: TextAlign.left,
+                    ),
+                  )),
+              Text('${widget.player2.firstname}',
+                  style: TextStyle(
+                    fontFamily: 'indie flower',
+                    fontSize: 23,
+                  )),
+            ],
+          ),
+        )
+      ]),
     );
   }
 
