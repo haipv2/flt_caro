@@ -12,6 +12,7 @@ import 'cell.dart';
 import 'fighting_bar.dart';
 import 'game_dialog.dart';
 import 'game_item.dart';
+import 'game_item_animation.dart';
 
 class Game extends StatefulWidget {
   FirebaseUser firebaseUser;
@@ -34,7 +35,7 @@ class Game extends StatefulWidget {
 }
 
 class _GameState extends State<Game> with TickerProviderStateMixin {
-  List<GameItem> itemlist;
+  List<GameItemAnimation> itemlist;
   List<int> player1List;
   List<int> player2List;
   var activePlayer;
@@ -42,6 +43,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   int player2Score = 0;
   AnimationController _fightingController;
   Animation<double> _fightingAnimation;
+  Animation<double> _itemAnimation;
+
 //  AnimationController _scoreController;
 //  Animation<double> _scoreAnimation;
 
@@ -64,10 +67,15 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   @override
   void initState() {
     _fightingController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 2500))
-          ..addStatusListener(handlerFightingAnimation);
-    _fightingAnimation = Tween(begin: 500.0, end: 0.0).animate(
-        CurvedAnimation(parent: _fightingController, curve: Curves.elasticIn));
+    AnimationController(vsync: this, duration: Duration(milliseconds: 2500))
+      ..addStatusListener(handlerFightingAnimation);
+    _fightingAnimation = Tween(begin: 500.0, end: 1.0).animate(CurvedAnimation(
+        parent: _fightingController,
+        curve: Interval(0.0, 0.8, curve: Curves.elasticIn)));
+    _itemAnimation = Tween(begin: 0.0, end: 200.0).animate(CurvedAnimation(
+        parent: _fightingController,
+        curve: Interval(0.8, 1, curve: Curves.fastOutSlowIn)));
+
 //    _scoreController =
 //        AnimationController(vsync: this, duration: Duration(milliseconds: 1))
 //          ..addListener(() {
@@ -82,17 +90,22 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     } else {
       doFristTurnWithFriend();
     }
-    _fightingController.forward().orCancel;
+    _fightingController
+        .forward()
+        .orCancel;
     super.initState();
   }
 
-  List<GameItem> doInit() {
+  List<GameItemAnimation> doInit() {
     player1List = new List();
     player2List = new List();
     activePlayer = 1;
-    List<GameItem> gameItems = new List();
+    List<GameItemAnimation> gameItems = new List();
     for (var i = 0; i < SUM; i++) {
-      gameItems.add(new GameItem(id: i));
+      gameItems.add(new GameItemAnimation(
+        GameItem(id: i), _itemAnimation,
+//        animation: _itemAnimation,
+      ));
     }
 
     return gameItems;
@@ -103,16 +116,17 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    Widget playerInfo() => Container(
-        color: Colors.orange,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            _buildPlayer(widget.player1),
-            _buildText('VS'),
-            _buildPlayer(widget.player2),
-          ],
-        ));
+    Widget playerInfo() =>
+        Container(
+            color: Colors.orange,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                _buildPlayer(widget.player1),
+                _buildText('VS'),
+                _buildPlayer(widget.player2),
+              ],
+            ));
 
     return new Scaffold(
       key: _scaffoldKey,
@@ -136,25 +150,26 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                       new GridView.builder(
                           padding: EdgeInsets.only(top: 5.0),
                           gridDelegate:
-                              new SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: COLUMNS,
-                                  crossAxisSpacing: 0.5,
-                                  mainAxisSpacing: 0.5),
+                          new SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: COLUMNS,
+                              crossAxisSpacing: 0.5,
+                              mainAxisSpacing: 0.5),
                           itemCount: itemlist.length,
-                          itemBuilder: (context, i) => new SizedBox(
+                          itemBuilder: (context, i) =>
+                          new SizedBox(
 //                        width: 30.0,
 //                        height: 20.0,
-                                child: new RaisedButton(
-                                  padding: const EdgeInsets.all(1.0),
-                                  onPressed: itemlist[i].enabled
-                                      ? () => playGame(itemlist[i], i)
-                                      : null,
-                                  child: itemlist[i],
+                            child: new RaisedButton(
+                              padding: const EdgeInsets.all(1.0),
+                              onPressed: itemlist[i].child.enabled
+                                  ? () => playGame(itemlist[i], i)
+                                  : null,
+                              child: itemlist[i],
 //                          child: Text('$i'),
-                                  color: itemlist[i].bg,
-                                  disabledColor: itemlist[i].bg,
-                                ),
-                              )),
+                              color: itemlist[i].child.bg,
+                              disabledColor: itemlist[i].child.bg,
+                            ),
+                          )),
                     ],
                   ),
                 ),
@@ -183,25 +198,27 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     doFristTurnSingle();
   }
 
-  void playGame(GameItem item, int cellNumber) {
+  void playGame(GameItemAnimation item, int cellNumber) {
     print('User click: $activePlayer . Cell number: $cellNumber');
 
     setState(() {
       var imageUrl = 'assets/images/p$activePlayer.png';
-      var newGameItem = [
-        GameItem(
-          id: cellNumber,
-          image: Image.asset(imageUrl),
-          enabled: false,
-        )
-      ];
+      var newGameItem =
+      GameItem(
+//          animation: _itemAnimation,
+        id: cellNumber,
+        image: Image.asset(imageUrl),
+        enabled: false,
+      );
+      var newGameItemAnimation = [GameItemAnimation(
+          newGameItem, _itemAnimation)];
 
       if (activePlayer == 1) {
-        itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItem);
+        itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
         activePlayer = 2;
         player1List.add(cellNumber);
       } else {
-        itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItem);
+        itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
         activePlayer = 1;
         player2List.add(cellNumber);
       }
@@ -210,11 +227,11 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         winner = checkWinner(cellNumber);
       }
       if (winner == 0) {
-        if (itemlist.every((p) => p.text != "")) {
+        if (itemlist.every((p) => p.child.text != "")) {
           showDialog(
               context: context,
               builder: (_) =>
-                  new GameDialog('Finish', 'Next round ?', resetGame));
+              new GameDialog('Finish', 'Next round ?', resetGame));
         }
       } else {
         activePlayer == 2 ? autoPlay(cellNumber) : null;
@@ -241,7 +258,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         });
         showDialog(
             context: context,
-            builder: (_) => new GameDialog("Player 1 Won",
+            builder: (_) =>
+            new GameDialog("Player 1 Won",
                 "Press the reset button to start again.", resetGame));
       } else {
         setState(() {
@@ -249,7 +267,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         });
         showDialog(
             context: context,
-            builder: (_) => new GameDialog("Player 2 Won",
+            builder: (_) =>
+            new GameDialog("Player 2 Won",
                 "Press the reset button to start again.", resetGame));
       }
     }
@@ -333,7 +352,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
     var r = new Random();
     var cellId = aroundCell[r.nextInt(aroundCell.length)];
-    int i = itemlist.indexWhere((p) => p.id == cellId);
+    int i = itemlist.indexWhere((p) => p.child.id == cellId);
     playGame(itemlist[i], i);
   }
 
@@ -427,15 +446,17 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
   void doFristTurnSingle() {
     int firstCell = ((COLUMNS * (ROWS ~/ 2 - 1)) + (COLUMNS ~/ 2));
-    var gameItem = GameItem(
-      id: firstCell,
-      image: Image.asset('assets/images/p$activePlayer.png'),
-      enabled: false,
-    );
+//    var gameItem = GameItem(
+////      animation: _itemAnimation,
+//      id: firstCell,
+//      image: Image.asset('assets/images/p$activePlayer.png'),
+//      enabled: false,
+//    );
     playGame(itemlist[firstCell], firstCell);
   }
 
-  Widget surrenderSection() => Expanded(
+  Widget surrenderSection() =>
+      Expanded(
         flex: 1,
         child: GestureDetector(
           onTap: _backToMain,
@@ -444,7 +465,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
             decoration: BoxDecoration(
                 color: Colors.deepOrange,
                 border:
-                    Border(top: BorderSide(width: 1.0, color: Colors.grey))),
+                Border(top: BorderSide(width: 1.0, color: Colors.grey))),
             child: Image.asset(
               SURRENDER_FLAG,
               width: 50,
@@ -459,7 +480,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     return Expanded(
       flex: 1,
       child:
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
         Expanded(
           flex: 6,
           child: Row(
@@ -491,9 +512,9 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                 Container(
                     child: Center(
                         child: Text(
-                  ':',
-                  style: TextStyle(fontSize: 40),
-                ))),
+                          ':',
+                          style: TextStyle(fontSize: 40),
+                        ))),
               ],
             ),
           ),
