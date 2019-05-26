@@ -22,23 +22,46 @@ class _UserListState extends State<UserList> {
 
   @override
   void initState() {
-    fetchUsers(widget.currentUser.loginId);
     _userPushBloc = new UserPushBloc();
+    fetchUsers(widget.currentUser.loginId);
     super.initState();
   }
+
+  TextEditingController _filterController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body: ListView.separated(
-            separatorBuilder: (context, index) => Divider(
-                  color: Colors.black,
-                ),
-            itemCount: _users.length,
-            itemBuilder: (context, index) => buildListRow(context, index)));
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: ListView.separated(
+          separatorBuilder: (context, index) => Divider(
+                color: Colors.black,
+              ),
+          itemCount: _users.length,
+          itemBuilder: (context, index) => buildListRow(context, index)),
+//        Column(
+//          children: <Widget>[
+////            Padding(
+////              padding: EdgeInsets.all(8.0),
+////              child: TextField(
+////                controller: _filterController,
+////                decoration: InputDecoration(
+////                  hintText: 'enter login id',
+////                ),
+//////                onChanged: _onChanged,
+////              ),
+////            ),
+//            ListView.separated(
+//                separatorBuilder: (context, index) => Divider(
+//                      color: Colors.black,
+//                    ),
+//                itemCount: _users.length,
+//                itemBuilder: (context, index) => buildListRow(context, index)),
+//          ],
+//        )
+    );
   }
 
   Widget buildListRow(BuildContext context, int index) => InkWell(
@@ -57,19 +80,29 @@ class _UserListState extends State<UserList> {
       );
 
   void fetchUsers(String currentLoginId) async {
-    var snapshot =
-        await FirebaseDatabase.instance.reference().child(USERS).once();
-
-    Map<String, dynamic> users = snapshot.value.cast<String, dynamic>();
-    users.forEach((loginId, userMap) {
-      if (currentLoginId == loginId) return;
-      User user = parseUser(loginId, userMap);
-      if (user != null) {
-        setState(() {
-          _users.add(user);
-        });
-      }
+    var snapshot = await _userPushBloc.getAllUserExceptLoginId(currentLoginId).then((usersList) {
+      usersList.forEach((user) {
+        if (currentLoginId == user.loginId) return;
+          if (user != null) {
+            setState(() {
+              _users.add(user);
+            });
+          }
+      });
     });
+    print('list users size: ${_users.length}');
+//    var snapshot =
+//        await FirebaseDatabase.instance.reference().child(USERS).once();
+//    Map<String, dynamic> users = snapshot.value.cast<String, dynamic>();
+//    users.forEach((loginId, userMap) {
+//      if (currentLoginId == loginId) return;
+//      User user = parseUser(loginId, userMap);
+//      if (user != null) {
+//        setState(() {
+//          _users.add(user);
+//        });
+//      }
+//    });
   }
 
   User parseUser(String loginId, Map<dynamic, dynamic> user) {
@@ -101,7 +134,7 @@ class _UserListState extends State<UserList> {
     List<dynamic> pushIds =
         await _userPushBloc.getListPushIdViaLoginId(user.loginId);
 
-    var friendsLoginId = user.firstname;
+    var friendsLoginId = user.loginId;
     var base = 'https://us-central1-caro-53f7d.cloudfunctions.net';
     var player1Items = widget.currentUser.loginId;
 
@@ -116,6 +149,15 @@ class _UserListState extends State<UserList> {
           .child(gameId)
           .set(null);
       http.get(dataURL);
+    });
+  }
+
+  void _onChanged(String value) {
+    setState(() {
+      _users = _users.where((user) {
+        return user.firstname.contains(value);
+      });
+      print(_users);
     });
   }
 }

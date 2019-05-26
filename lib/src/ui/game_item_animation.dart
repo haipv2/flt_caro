@@ -14,11 +14,17 @@ class GameItemAnimation extends StatelessWidget {
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) {
-        return Transform(
-          transform:
-              Matrix4.translationValues(animation.value * width, 0.0, 0.0),
+        return
+        Container(
+          width: animation.value,
+          height: animation.value,
           child: child,
         );
+//          Transform(
+//          transform:
+//              Matrix4.translationValues(animation.value * width, 0.0, 0.0),
+//          child: child,
+//        );
       },
       child: child,
     );

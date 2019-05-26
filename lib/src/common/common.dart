@@ -42,3 +42,6 @@ const SUM = COLUMNS * ROWS;
 const WIN_POINT = 5;
 const SURRENDER_FLAG = 'assets/images/surrender.gif';
 const USER_PREFS_KEY='userKey';
+const NEXT_GAME='nextGame';
+const PLAYER_SEND_REQ_SCREEN='first';
+const PLAYER_RECEIVE_REQ_SCREEN='second';

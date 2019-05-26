@@ -54,8 +54,8 @@ flutter:
       - assets/images/login.png
       - assets/images/female.png
       - assets/images/male.png
-      - assets/images/p1.png
-      - assets/images/p2.png
+      - assets/images/first.gif
+      - assets/images/second.gif
       - assets/images/surrender.gif
       - assets/images/mess.gif
       - assets/images/emotion.png

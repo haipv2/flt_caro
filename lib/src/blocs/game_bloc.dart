@@ -7,7 +7,14 @@ class GameBloc{
   Future<User> getUserViaLoginId(String loginId, User player)  async{
     User user = await _repository.getUserViaLoginId(loginId);
     return user;
-
-
   }
+
+  Future<void> playGameWithFriend(String gameId, activePlayer) async{
+    await _repository.playGameWithFriend(gameId, activePlayer);
+  }
+
+  Future<void> cleanGame(String gameId) async{
+    await _repository.cleanGame(gameId);
+  }
+
 }

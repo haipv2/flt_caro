@@ -16,7 +16,8 @@ class FirestoreProvider {
       USER_LAST_NAME: user.lastname,
       USER_PASSWORD: user.password,
       USER_GENDER: user.gender.toString(),
-      USER_ROLE: user.role ?? 'USER'
+      USER_ROLE: user.role ?? 'USER',
+      USER_LOGIN_ID: user.loginId,
     });
     return user;
   }
@@ -69,7 +70,7 @@ class FirestoreProvider {
 
   User getUserByLoginAndPassword(String loginIdInput, String passwordInput,
       Map<dynamic, dynamic> userMap) {
-    String email, password, firstName, lastName;
+    String email, password, firstName, lastName, loginId;
     int gender;
     userMap.forEach((key, value) {
       if (key == USER_EMAIL) {
@@ -82,6 +83,8 @@ class FirestoreProvider {
         lastName = value.toString();
       } else if (key == USER_GENDER) {
         gender = int.parse(value);
+      } else if (key == USER_LOGIN_ID) {
+        loginId = value.toString();
       }
     });
     if (password == passwordInput) {
@@ -97,9 +100,9 @@ class FirestoreProvider {
     return null;
   }
 
-  Future<User> getUserByLogin(loginIdInput)async {
-    DataSnapshot snapshot = await
-        _firebaseDatabase.reference().child(USERS_TBL).once();
+  Future<User> getUserByLogin(loginIdInput) async {
+    DataSnapshot snapshot =
+        await _firebaseDatabase.reference().child(USERS_TBL).once();
 
     Map<String, dynamic> users = snapshot.value.cast<String, dynamic>();
     User result;
@@ -107,7 +110,7 @@ class FirestoreProvider {
     int gender;
     users.forEach((key, value) {
       if (key == loginIdInput) {
-        result = getUserInMapByLogin(value);
+        result = buildUserInfo(value);
         result.loginId = loginIdInput;
       }
     });
@@ -115,8 +118,8 @@ class FirestoreProvider {
     return result;
   }
 
-  User getUserInMapByLogin(Map<dynamic, dynamic> userMap) {
-    String email, password, firstName, lastName;
+  User buildUserInfo(Map<dynamic, dynamic> userMap) {
+    String email, password, firstName, lastName, loginId;
     int gender;
     userMap.forEach((key, value) {
       if (key == USER_EMAIL) {
@@ -129,9 +132,12 @@ class FirestoreProvider {
         lastName = value.toString();
       } else if (key == USER_GENDER) {
         gender = int.parse(value);
+      } else if (key == USER_LOGIN_ID) {
+        loginId = value.toString();
       }
     });
     var result = User()
+      ..loginId = loginId
       ..email = email
       ..firstname = firstName
       ..lastname = lastName
@@ -139,5 +145,54 @@ class FirestoreProvider {
       ..password = password
       ..gender = gender;
     return result;
+  }
+
+  Future<List<User>> getAllUser() async {
+    DataSnapshot snapshot =
+        await _firebaseDatabase.reference().child(USERS_TBL).once();
+
+    Map<String, dynamic> users = snapshot.value.cast<String, dynamic>();
+    List<User> result = [];
+    users.forEach((key, value) {
+      return result.add(buildUserInfo(value));
+    });
+    return result;
+  }
+
+  Future<List<User>> getAllUserExceptLoginId(String currentLoginId) async {
+    DataSnapshot snapshot =
+        await _firebaseDatabase.reference().child(USERS_TBL).once();
+
+    Map<String, dynamic> users = snapshot.value.cast<String, dynamic>();
+    List<User> result = [];
+    users.forEach((key, value) {
+      if (key == currentLoginId) return;
+      return result.add(buildUserInfo(value));
+    });
+    return result;
+  }
+
+  Future<void> playGameWithFriend(String gameId, activePlayer) async {
+    await FirebaseDatabase.instance
+        .reference()
+        .child(GAME_TBL)
+        .child(gameId)
+        .onChildAdded
+        .listen((Event event) {
+          print(event);
+//      String key = event.snapshot.key;
+//      if (key != 'restart') {
+//        int row = int.parse(key.substring(0, 1));
+//        int column = int.parse(key.substring(2, 3));
+//      }
+    });
+  }
+
+  Future<void> cleanGame(String gameId) async {
+    await FirebaseDatabase.instance
+        .reference()
+        .child(GAME_TBL)
+        .child(gameId)
+        .set(null);
   }
 }

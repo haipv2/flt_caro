@@ -30,4 +30,23 @@ class Repository {
 
     return result;
   }
+
+  Future<List<User>> getAllUser() async{
+    var result = await _firestoreProvider.getAllUser();
+    return result;
+  }
+
+  Future<List<User>>  getAllUserExceptLoginId(String currentLoginId) async{
+    var result = await _firestoreProvider.getAllUserExceptLoginId(currentLoginId);
+    return result;
+  }
+
+  Future<void> playGameWithFriend(String gameId, activePlayer) async{
+    await _firestoreProvider.playGameWithFriend(gameId, activePlayer);
+  }
+
+  Future<void> cleanGame(String gameId) async {
+    await _firestoreProvider.cleanGame(gameId);
+  }
+
 }

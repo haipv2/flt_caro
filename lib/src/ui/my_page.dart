@@ -98,11 +98,8 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
         var currentUser = widget.user;
         String gameId = '${currentUser.loginId}-$fromId';
         Navigator.of(context).pushReplacement(new MaterialPageRoute(
-            builder: (context) => new Game(
-                  GameMode.friends,
-                  currentUser,
-                  user2,
-                )));
+            builder: (context) =>
+                new Game(GameMode.friends, currentUser, user2, gameId, PLAYER_SEND_REQ_SCREEN)));
       });
     }
   }
@@ -131,7 +128,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
           },
         ),
         FlatButton(
-          child: Text('Accept'),
+          child: Text('Play'),
           onPressed: () {
             accept(message);
           },
@@ -144,14 +141,8 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     String fromPushId = getValueFromMapData(message, 'fromPushId');
     String fromId = getValueFromMapData(message, 'fromId');
     User user = widget.user;
-//    User user = await SharedPreferencesUtils.getUserFromPreferences();
-//    SharedPreferences prefs = await SharedPreferences.getInstance();
-//    var username = prefs.getString(USER_NAME);
     var pushId = await SharedPreferencesUtils.getStringToPreferens(PUSH_ID)
         .then((pushId) {});
-//    var userId = prefs.getString(USER_ID);
-    print(user);
-
     var base = 'https://us-central1-caro-53f7d.cloudfunctions.net';
     String dataURL =
         '$base/resPlayReq?to=$fromPushId&fromPushId=$pushId&fromId=${user.loginId}&fromName=${user.firstname}&fromGender=${user.gender}&type=accept';
@@ -160,11 +151,8 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     String gameId = '$fromId-${user.loginId}';
     _bloc.getUserViaLoginId(fromId).then((user2) {
       Navigator.of(context).pushReplacement(new MaterialPageRoute(
-          builder: (context) => new Game(
-                GameMode.friends,
-                user,
-                user2,
-              )));
+          builder: (context) =>
+              new Game(GameMode.friends, user, user2, gameId, PLAYER_RECEIVE_REQ_SCREEN)));
     });
   }
 
@@ -206,7 +194,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    _controller.forward().orCancel;
+    _controller.forward();
     var aiName2 = '${WordPair.random()} ${WordPair.random()}';
     var aiName1 = '${WordPair.random()}';
     var aiName = aiName2.length > 11 ? aiName1 : aiName2;
@@ -232,6 +220,8 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
                               ..firstname = '$aiName'
                               ..loginId = '${aiName}Id'
                               ..email = '${aiName}@gmail.com',
+                            null,
+                            null,
                           ),
                     ),
                   );
