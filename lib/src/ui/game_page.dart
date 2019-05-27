@@ -86,6 +86,18 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         print('----------$key');
         if (key != NEXT_GAME) {
 //          playGame(int.parse(key));
+          if (player1List == null && player2List.length == 1) {
+            activePlayer = PLAYER_SEND_REQ_SCREEN;
+          } else if (player1List.length == player2List.length) {
+            activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
+          } else if (player1List.length < player2List.length) {
+            activePlayer = PLAYER_SEND_REQ_SCREEN;
+          }
+          if (widget.type == PLAYER_SEND_REQ_SCREEN) {
+            _opacityTurn = 1.0;
+          } else {
+            _opacityTurn = 0.0;
+          }
           loadGameItem(key, player);
         }
       });
@@ -135,9 +147,9 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   List<GameItemAnimation> doInit() {
     player1List = new List();
     player2List = new List();
-    if (widget.type == PLAYER_RECEIVE_REQ_SCREEN) {
-      _opacityTurn = 1.0;
-    }
+//    if (widget.type == PLAYER_RECEIVE_REQ_SCREEN) {
+//      _opacityTurn = 1.0;
+//    }
     activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
 
     List<GameItemAnimation> gameItems = new List();
@@ -247,19 +259,25 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   void playGame(int cellNumber) {
     print('User click: $activePlayer . Cell number: $cellNumber');
 
-    if(widget.type== PLAYER_SEND_REQ_SCREEN){
+    if (widget.type == PLAYER_SEND_REQ_SCREEN) {
       print('Press from send req screen');
-      if (activePlayer == PLAYER_SEND_REQ_SCREEN){
-        SnackBar snackbar = SnackBar(content: Text('Please wait until your\'s turn. '), duration: Duration(milliseconds: 1000),);
-        Scaffold.of(context).showSnackBar(snackbar);
-        return;
+      if (activePlayer == PLAYER_SEND_REQ_SCREEN) {
+        SnackBar snackbar = SnackBar(
+          content: Text('Please wait until your\'s turn. '),
+          duration: Duration(milliseconds: 1000),
+        );
+//        Scaffold.of(context).showSnackBar(snackbar);
+//        return;
       }
-    }else {
+    } else {
       print('Press from receiver screen');
-      if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN){
-        SnackBar snackbar = SnackBar(content: Text('Please wait until your\'s turn. '), duration: Duration(milliseconds: 1000),);
-        Scaffold.of(context).showSnackBar(snackbar);
-        return;
+      if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
+        SnackBar snackbar = SnackBar(
+          content: Text('Please wait until your\'s turn. '),
+          duration: Duration(milliseconds: 1000),
+        );
+//        Scaffold.of(context).showSnackBar(snackbar);
+//        return;
       }
     }
 
@@ -670,6 +688,18 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     if (status == AnimationStatus.completed) {}
   }
 
+  @override
+  void didChangeDependencies() {
+    print('did change dependencies');
+    super.didChangeDependencies();
+  }
+
+  @override
+  void didUpdateWidget(Game oldWidget) {
+    print('did update widget');
+    super.didUpdateWidget(oldWidget);
+  }
+
   void handlerStatus(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
       _fightingController.stop();
@@ -678,18 +708,18 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
   void loadGameItem(String key, String player) {
 //    setState(() {
-      int cellNumber = int.parse(key);
-      var imageUrl = 'assets/images/$activePlayer.gif';
-      var newGameItem = GameItem(
-        id: cellNumber,
-        image: Image.asset(imageUrl),
-        enabled: false,
-      );
-      var newGameItemAnimation = [
-        GameItemAnimation(newGameItem, _itemAnimation)
-      ];
+    int cellNumber = int.parse(key);
+    var imageUrl = 'assets/images/$activePlayer.gif';
+    var newGameItem = GameItem(
+      id: cellNumber,
+      image: Image.asset(imageUrl),
+      enabled: false,
+    );
+    var newGameItemAnimation = [GameItemAnimation(newGameItem, _itemAnimation)];
+    setState(() {
       itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
-    }
+    });
+  }
 //    );
 //  }
 }
