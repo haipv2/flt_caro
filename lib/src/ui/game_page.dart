@@ -85,6 +85,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         String player = event.snapshot.value;
         print('----------$key');
         if (key != NEXT_GAME) {
+          loadGameItem(key, player);
+
 //          playGame(int.parse(key));
           if (player1List == null && player2List.length == 1) {
             activePlayer = PLAYER_SEND_REQ_SCREEN;
@@ -94,11 +96,10 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
             activePlayer = PLAYER_SEND_REQ_SCREEN;
           }
           if (widget.type == PLAYER_SEND_REQ_SCREEN) {
-            _opacityTurn = 1.0;
-          } else {
             _opacityTurn = 0.0;
+          } else {
+            _opacityTurn = 1.0;
           }
-          loadGameItem(key, player);
         }
       });
     }
@@ -303,22 +304,22 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
       if (activePlayer == PLAYER_SEND_REQ_SCREEN) {
         itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
-        activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
-        if (widget.type == PLAYER_SEND_REQ_SCREEN) {
-          _opacityTurn = 0.0;
-        } else {
-          _opacityTurn = 1.0;
-        }
+//        activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
+//        if (widget.type == PLAYER_SEND_REQ_SCREEN) {
+//          _opacityTurn = 0.0;
+//        } else {
+//          _opacityTurn = 1.0;
+//        }
         player1List.add(cellNumber);
       } else {
-        if (widget.type == PLAYER_SEND_REQ_SCREEN) {
-          _opacityTurn = 1.0;
-        } else {
-          _opacityTurn = 0.0;
-        }
+//        if (widget.type == PLAYER_SEND_REQ_SCREEN) {
+//          _opacityTurn = 1.0;
+//        } else {
+//          _opacityTurn = 0.0;
+//        }
 
         itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
-        activePlayer = PLAYER_SEND_REQ_SCREEN;
+//        activePlayer = PLAYER_SEND_REQ_SCREEN;
         player2List.add(cellNumber);
       }
       int winner;
@@ -716,9 +717,11 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       enabled: false,
     );
     var newGameItemAnimation = [GameItemAnimation(newGameItem, _itemAnimation)];
-    setState(() {
-      itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
-    });
+    if (mounted) {
+      setState(() {
+        itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
+      });
+    }
   }
 //    );
 //  }
