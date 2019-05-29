@@ -82,17 +82,9 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
           .onChildAdded
           .listen((Event event) {
         String key = event.snapshot.key;
-        String player = event.snapshot.value;
+//        String player = event.snapshot.value;
         print('----------$key');
         if (key != NEXT_GAME) {
-//          playGame(int.parse(key));
-//          if (player1List == null && player2List.length == 1) {
-//            activePlayer = PLAYER_SEND_REQ_SCREEN;
-//          } else if (player1List.length == player2List.length) {
-//            activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
-//          } else if (player1List.length < player2List.length) {
-//            activePlayer = PLAYER_SEND_REQ_SCREEN;
-//          }
 
           loadGameItem(key, activePlayer);
           if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
@@ -105,7 +97,12 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
               activePlayer == PLAYER_SEND_REQ_SCREEN) {
             _opacityTurn = 1.0;
           } else {
-            _opacityTurn = 0.0;
+            if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN){
+              _opacityTurn = 1.0;
+            }else {
+              _opacityTurn = 0.0;
+            }
+
           }
         }
       });
@@ -125,13 +122,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       ..addStatusListener(handlerStatus);
     _turnAnimation = Tween(begin: 0.0, end: 1.0).animate(_turnController);
 
-//    _scoreController =
-//        AnimationController(vsync: this, duration: Duration(milliseconds: 1))
-//          ..addListener(() {
-//            setState(() {});
-//          });
-//    _scoreAnimation = Tween(begin: 0.0, end: 1.0).animate(_scoreController);
-//    _scoreController.forward();
     itemlist = doInit();
     if (GameMode.single == widget.gameMode) {
       doFristTurnSingle();
@@ -142,22 +132,10 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     super.initState();
   }
 
-//  String getActiveplayer() {
-////    activePlayer = PLAYER_FIRST;
-//    if (widget.gameMode == GameMode.friends) {
-//      if (widget.type == PLAYER_SECOND) {
-//        activePlayer = PLAYER_SECOND;
-//      }
-//    }
-//    return activePlayer;
-//  }
 
   List<GameItemAnimation> doInit() {
     player1List = new List();
     player2List = new List();
-//    if (widget.type == PLAYER_RECEIVE_REQ_SCREEN) {
-//      _opacityTurn = 1.0;
-//    }
 
     activePlayer = PLAYER_SEND_REQ_SCREEN;
 
@@ -287,8 +265,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
           content: Text('Please wait until your\'s turn. '),
           duration: Duration(milliseconds: 1000),
         );
-//        Scaffold.of(context).showSnackBar(snackbar);
-//        return;
         _scaffoldKey.currentState?.showSnackBar(snackbar);
         return;
       }
@@ -316,20 +292,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
       if (activePlayer == PLAYER_SEND_REQ_SCREEN) {
         itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
-//        activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
-//        if (widget.type == PLAYER_SEND_REQ_SCREEN) {
-//          _opacityTurn = 0.0;
-//        } else {
-//          _opacityTurn = 1.0;
-//        }
         player1List.add(cellNumber);
       } else {
-//        if (widget.type == PLAYER_SEND_REQ_SCREEN) {
-//          _opacityTurn = 1.0;
-//        } else {
-//          _opacityTurn = 0.0;
-//        }
-
         itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
 //        activePlayer = PLAYER_SEND_REQ_SCREEN;
         player2List.add(cellNumber);
@@ -365,10 +329,10 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     player2List.sort((i1, i2) => i1 - i2);
     //check user 1 win
     if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
-      winner = doReferee(player1List, 1, id);
+      winner = doReferee(player2List, 1, id);
     } else {
       //check user 2 win
-      winner = doReferee(player2List, 2, id);
+      winner = doReferee(player1List, 2, id);
     }
 
     if (winner != null) {
@@ -595,7 +559,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                   alignment: Alignment.topRight,
                   child: AnimatedOpacity(
                     duration: Duration(milliseconds: 550),
-                    opacity: _opacityTurn = _opacityTurn == 0 ? 1.0 : 0.0,
+                    opacity: _opacityTurn = _opacityTurn == 0.0 ? 1.0 : 0.0,
                     child: Text(
                       '${widget.player2.firstname}\'s turn',
                       style: TextStyle(
@@ -714,13 +678,13 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
   @override
   void didChangeDependencies() {
-    print('did change dependencies');
+    print('did change dependencies. Change dependencies $_opacityTurn');
     super.didChangeDependencies();
   }
 
   @override
   void didUpdateWidget(Game oldWidget) {
-    print('did update widget');
+    print('did update widget. Update $_opacityTurn');
     super.didUpdateWidget(oldWidget);
   }
 

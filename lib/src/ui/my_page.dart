@@ -187,7 +187,6 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
 //          .child(USERS)
 //          .child(currentUser.uid)
 //          .update({PUSH_ID: token});
-    print('updated FCM token');
 //    }
   }
 
