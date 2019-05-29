@@ -47,7 +47,7 @@ class FirestoreProvider {
   Future<List<dynamic>> getListPushIdViaLoginId(String friendsLoginId) async {
     DataSnapshot snapshot =
         await _firebaseDatabase.reference().child(USER_PUSH_INFO).once();
-    Map<String, dynamic> users = snapshot.value.cast<String, dynamic>();
+    Map<String, dynamic> users = snapshot.value == null ? {'':''} : snapshot.value.cast<String, dynamic>();
     List<dynamic> result = [];
     users.forEach((key, userMap) {
       if (key != friendsLoginId) return;

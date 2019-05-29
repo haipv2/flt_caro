@@ -118,17 +118,17 @@ class _LoginpageState extends State<Loginpage> {
                       ),
                     ]),
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: GestureDetector(
-                  onTap: _forgotPassword,
-                  child: Text(
-                    'Forgot password ?',
-                    style: TextStyle(
-                        color: Colors.blue, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              )
+//              Padding(
+//                padding: const EdgeInsets.only(right: 10),
+//                child: GestureDetector(
+//                  onTap: _forgotPassword,
+//                  child: Text(
+//                    'Forgot password ?',
+//                    style: TextStyle(
+//                        color: Colors.blue, fontWeight: FontWeight.bold),
+//                  ),
+//                ),
+//              )
             ],
           ),
         );

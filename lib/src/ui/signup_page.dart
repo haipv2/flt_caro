@@ -347,7 +347,7 @@ class _SignUpState extends State<SignUp> {
             Container(
               margin: EdgeInsets.only(top: 5.0, bottom: 5.0),
             ),
-            registerByOtherWay,
+//            registerByOtherWay,
           ],
         ),
       ),

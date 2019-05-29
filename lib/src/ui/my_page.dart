@@ -169,7 +169,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
             .reference()
             .child(USER_PUSH_INFO)
             .child(widget.user.loginId)
-            .update({PUSH_ID: listPushId});
+            .set({PUSH_ID: listPushId});
       }
 //      print(pushId);
     });

@@ -85,20 +85,27 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         String player = event.snapshot.value;
         print('----------$key');
         if (key != NEXT_GAME) {
-          loadGameItem(key, player);
-
 //          playGame(int.parse(key));
-          if (player1List == null && player2List.length == 1) {
+//          if (player1List == null && player2List.length == 1) {
+//            activePlayer = PLAYER_SEND_REQ_SCREEN;
+//          } else if (player1List.length == player2List.length) {
+//            activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
+//          } else if (player1List.length < player2List.length) {
+//            activePlayer = PLAYER_SEND_REQ_SCREEN;
+//          }
+
+          loadGameItem(key, activePlayer);
+          if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
             activePlayer = PLAYER_SEND_REQ_SCREEN;
-          } else if (player1List.length == player2List.length) {
-            activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
-          } else if (player1List.length < player2List.length) {
-            activePlayer = PLAYER_SEND_REQ_SCREEN;
-          }
-          if (widget.type == PLAYER_SEND_REQ_SCREEN) {
-            _opacityTurn = 0.0;
           } else {
+            activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
+          }
+
+          if (widget.type == PLAYER_SEND_REQ_SCREEN &&
+              activePlayer == PLAYER_SEND_REQ_SCREEN) {
             _opacityTurn = 1.0;
+          } else {
+            _opacityTurn = 0.0;
           }
         }
       });
@@ -151,7 +158,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 //    if (widget.type == PLAYER_RECEIVE_REQ_SCREEN) {
 //      _opacityTurn = 1.0;
 //    }
-    activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
+
+    activePlayer = PLAYER_SEND_REQ_SCREEN;
 
     List<GameItemAnimation> gameItems = new List();
     for (var i = 0; i < SUM; i++) {
@@ -262,6 +270,18 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
     if (widget.type == PLAYER_SEND_REQ_SCREEN) {
       print('Press from send req screen');
+      if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
+        SnackBar snackbar = SnackBar(
+          content: Text('Please wait until your\'s turn. '),
+          duration: Duration(milliseconds: 1000),
+        );
+        _scaffoldKey.currentState?.showSnackBar(snackbar);
+
+//        Scaffold.of(context).showSnackBar(snackbar);
+        return;
+      }
+    } else {
+      print('Press from receiver screen');
       if (activePlayer == PLAYER_SEND_REQ_SCREEN) {
         SnackBar snackbar = SnackBar(
           content: Text('Please wait until your\'s turn. '),
@@ -269,16 +289,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         );
 //        Scaffold.of(context).showSnackBar(snackbar);
 //        return;
-      }
-    } else {
-      print('Press from receiver screen');
-      if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
-        SnackBar snackbar = SnackBar(
-          content: Text('Please wait until your\'s turn. '),
-          duration: Duration(milliseconds: 1000),
-        );
-//        Scaffold.of(context).showSnackBar(snackbar);
-//        return;
+        _scaffoldKey.currentState?.showSnackBar(snackbar);
+        return;
       }
     }
 
@@ -682,7 +694,18 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
   void doFristTurnWithFriend() {
     int firstCell = ((COLUMNS * (ROWS ~/ 2 - 1)) + (COLUMNS ~/ 2));
-    playGame(firstCell);
+
+    activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
+    if (widget.type == PLAYER_SEND_REQ_SCREEN) {
+      _opacityTurn = 1.0;
+    } else {
+      activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
+      _opacityTurn = 0.0;
+    }
+
+    if (widget.type == PLAYER_RECEIVE_REQ_SCREEN) {
+      playGame(firstCell);
+    }
   }
 
   handlerFightingAnimation(status) {
@@ -710,7 +733,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   void loadGameItem(String key, String player) {
 //    setState(() {
     int cellNumber = int.parse(key);
-    var imageUrl = 'assets/images/$activePlayer.gif';
+    var imageUrl = 'assets/images/$player.gif';
     var newGameItem = GameItem(
       id: cellNumber,
       image: Image.asset(imageUrl),
