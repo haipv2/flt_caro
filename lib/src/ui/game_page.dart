@@ -8,6 +8,7 @@ import 'package:flt_caro/src/common/common.dart';
 import 'package:flt_caro/src/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_button/flutter_reactive_button.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 import '../common/game_enums.dart';
 import 'fighting_bar.dart';
@@ -85,7 +86,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 //        String player = event.snapshot.value;
         print('----------$key');
         if (key != NEXT_GAME) {
-
           loadGameItem(key, activePlayer);
           if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
             activePlayer = PLAYER_SEND_REQ_SCREEN;
@@ -93,16 +93,18 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
             activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
           }
 
-          if (widget.type == PLAYER_SEND_REQ_SCREEN &&
-              activePlayer == PLAYER_SEND_REQ_SCREEN) {
-            _opacityTurn = 1.0;
-          } else {
-            if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN){
+          if (widget.type == PLAYER_SEND_REQ_SCREEN) {
+            if (activePlayer == PLAYER_SEND_REQ_SCREEN) {
               _opacityTurn = 1.0;
-            }else {
+            } else {
               _opacityTurn = 0.0;
             }
-
+          } else {
+            if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
+              _opacityTurn = 1.0;
+            } else {
+              _opacityTurn = 0.0;
+            }
           }
         }
       });
@@ -132,11 +134,12 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     super.initState();
   }
 
-
   List<GameItemAnimation> doInit() {
     player1List = new List();
     player2List = new List();
-
+    if (widget.gameMode == GameMode.single) {
+      _opacityTurn = 1.0;
+    }
     activePlayer = PLAYER_SEND_REQ_SCREEN;
 
     List<GameItemAnimation> gameItems = new List();
@@ -245,28 +248,28 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
   void playGame(int cellNumber) {
     print('User click: $activePlayer . Cell number: $cellNumber');
+    if (widget.gameMode == GameMode.friends) {
+      if (widget.type == PLAYER_SEND_REQ_SCREEN) {
+        print('Press from send req screen');
 
-    if (widget.type == PLAYER_SEND_REQ_SCREEN) {
-      print('Press from send req screen');
-      if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
-        SnackBar snackbar = SnackBar(
-          content: Text('Please wait until your\'s turn. '),
-          duration: Duration(milliseconds: 1000),
-        );
-        _scaffoldKey.currentState?.showSnackBar(snackbar);
-
-//        Scaffold.of(context).showSnackBar(snackbar);
-        return;
-      }
-    } else {
-      print('Press from receiver screen');
-      if (activePlayer == PLAYER_SEND_REQ_SCREEN) {
-        SnackBar snackbar = SnackBar(
-          content: Text('Please wait until your\'s turn. '),
-          duration: Duration(milliseconds: 1000),
-        );
-        _scaffoldKey.currentState?.showSnackBar(snackbar);
-        return;
+        if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
+          SnackBar snackbar = SnackBar(
+            content: Text('Please wait until your\'s turn. '),
+            duration: Duration(milliseconds: 1000),
+          );
+          _scaffoldKey.currentState?.showSnackBar(snackbar);
+          return;
+        }
+      } else {
+        print('Press from receiver screen');
+        if (activePlayer == PLAYER_SEND_REQ_SCREEN) {
+          SnackBar snackbar = SnackBar(
+            content: Text('Please wait until your\'s turn. '),
+            duration: Duration(milliseconds: 1000),
+          );
+          _scaffoldKey.currentState?.showSnackBar(snackbar);
+          return;
+        }
       }
     }
 
@@ -290,17 +293,23 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
             .set(activePlayer);
       }
 
+
       if (activePlayer == PLAYER_SEND_REQ_SCREEN) {
         itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
         player1List.add(cellNumber);
+        if (widget.gameMode == GameMode.single){
+          activePlayer =PLAYER_RECEIVE_REQ_SCREEN;
+        }
       } else {
         itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
-//        activePlayer = PLAYER_SEND_REQ_SCREEN;
         player2List.add(cellNumber);
+        if (widget.gameMode == GameMode.single){
+          activePlayer = PLAYER_SEND_REQ_SCREEN;
+        }
       }
-      int winner;
+      String winner;
       if (player1List.length > 4 || player2List.length > 4) {
-        winner = checkWinner(cellNumber);
+        winner = checkWinnerSingle(cellNumber);
       }
       if (winner == 0) {
         if (itemlist.every((p) => p.child.text != "")) {
@@ -311,7 +320,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         }
       } else {
         if (widget.gameMode == GameMode.single) {
-          int timeForAi = 1600 + Random().nextInt(500);
+          int timeForAi = 1000 + Random().nextInt(500);
           print('Time for AI: $timeForAi');
           Timer(Duration(milliseconds: timeForAi), () {
             activePlayer == PLAYER_RECEIVE_REQ_SCREEN
@@ -323,35 +332,35 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     });
   }
 
-  int checkWinner(id) {
-    int winner;
+  String checkWinnerSingle(id) {
+    String winner;
     player1List.sort((i1, i2) => i1 - i2);
     player2List.sort((i1, i2) => i1 - i2);
     //check user 1 win
     if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
-      winner = doReferee(player2List, 1, id);
+      winner = doReferee(player2List, activePlayer, id);
     } else {
       //check user 2 win
-      winner = doReferee(player1List, 2, id);
+      winner = doReferee(player1List, activePlayer, id);
     }
 
     if (winner != null) {
-      if (winner == 1) {
+      String dialogMsg = 'Press the reset button to play again.';
+      var gameDialog = "Player ${widget.player1.firstname} Won";
+      if (winner == PLAYER_SEND_REQ_SCREEN) {
         setState(() {
           player1Score += 1;
         });
         showDialog(
             context: context,
-            builder: (_) => new GameDialog("Player 1 Won",
-                "Press the reset button to start again.", resetGame));
+            builder: (_) => new GameDialog(gameDialog, dialogMsg, resetGame));
       } else {
         setState(() {
           player2Score += 1;
         });
         showDialog(
             context: context,
-            builder: (_) => new GameDialog("Player 2 Won",
-                "Press the reset button to start again.", resetGame));
+            builder: (_) => new GameDialog(gameDialog, dialogMsg, resetGame));
       }
     }
 
@@ -435,11 +444,12 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     var r = new Random();
     var cellId = aroundCell[r.nextInt(aroundCell.length)];
     int i = itemlist.indexWhere((p) => p.child.id == cellId);
+    _opacityTurn = 1.0;
     playGame(i);
   }
 
   /// detect winner
-  int doReferee(List<int> players, int winner, int currentCell) {
+  String doReferee(List<int> players, String winner, int currentCell) {
     // check vertically
     for (var i = 0; i < players.length; i++) {
       var player = players[i];
@@ -546,11 +556,14 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                   child: AnimatedOpacity(
                     duration: Duration(milliseconds: 550),
                     opacity: _opacityTurn,
-                    child: Text('${widget.player1.firstname}\'s turn',
-                        style: TextStyle(
-                          fontFamily: 'indie flower',
-                          fontSize: 23,
-                        )),
+                    child: AutoSizeText(
+                      '${widget.player1.firstname}\'s turn',
+                      style: TextStyle(
+                        fontFamily: 'indie flower',
+                        fontSize: 23,
+                      ),
+                      maxLines: 2,
+                    ),
                   ),
                 ),
               ),
@@ -560,12 +573,13 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                   child: AnimatedOpacity(
                     duration: Duration(milliseconds: 550),
                     opacity: _opacityTurn = _opacityTurn == 0.0 ? 1.0 : 0.0,
-                    child: Text(
+                    child: AutoSizeText(
                       '${widget.player2.firstname}\'s turn',
                       style: TextStyle(
                         fontFamily: 'indie flower',
                         fontSize: 23,
                       ),
+                      maxLines: 2,
                     ),
                   ),
                 ),
@@ -695,7 +709,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   }
 
   void loadGameItem(String key, String player) {
-//    setState(() {
     int cellNumber = int.parse(key);
     var imageUrl = 'assets/images/$player.gif';
     var newGameItem = GameItem(
@@ -710,6 +723,4 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       });
     }
   }
-//    );
-//  }
 }
