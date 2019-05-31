@@ -45,3 +45,4 @@ const USER_PREFS_KEY='userKey';
 const NEXT_GAME='nextGame';
 const PLAYER_SEND_REQ_SCREEN='first';
 const PLAYER_RECEIVE_REQ_SCREEN='second';
+const WINNER='winner';

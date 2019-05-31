@@ -12,9 +12,11 @@ import 'package:auto_size_text/auto_size_text.dart';
 
 import '../common/game_enums.dart';
 import 'fighting_bar.dart';
-import 'game_dialog.dart';
+import 'game_dialog_loser.dart';
+import 'game_dialog_winner.dart';
 import 'game_item.dart';
 import 'game_item_animation.dart';
+import 'my_page.dart';
 
 class Game extends StatefulWidget {
   FirebaseUser firebaseUser;
@@ -83,9 +85,22 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
           .onChildAdded
           .listen((Event event) {
         String key = event.snapshot.key;
-//        String player = event.snapshot.value;
         print('----------$key');
-        if (key != NEXT_GAME) {
+        if (key == WINNER) {
+          String contentDialogLoser =
+              'Press the button to play again. Next round, you play first';
+          var titleDialogLoser = "OPPS!!! You losed T_T ";
+
+          showDialog(
+              context: context,
+              builder: (_) {
+                return GameDialogLoser(titleDialogLoser, contentDialogLoser,
+                        () {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => MyPage(widget.player1)));
+                    });
+              });
+        }else if (key != NEXT_GAME) {
           loadGameItem(key, activePlayer);
           if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
             activePlayer = PLAYER_SEND_REQ_SCREEN;
@@ -225,24 +240,29 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     );
   }
 
-  void resetGame() async {
+  Widget resetGame(String winner) {
+    String contentDialogWinner =
+        'Next round will be started by your friend.\n Please wait or back to the Main page';
+    var titleDialogWinner = "Player ${widget.player1.firstname} Won";
     if (widget.gameMode == GameMode.friends) {
-      await FirebaseDatabase.instance
-          .reference()
-          .child(GAME_TBL)
-          .child(widget.gameId)
-          .child(NEXT_GAME)
-          .set(true);
-    }
+      pushToLoser();
 
-    if (Navigator.canPop(context)) Navigator.pop(context);
-    setState(() {
-      itemlist = doInit();
-    });
-    if (widget.gameMode == GameMode.friends) {
-      doFristTurnWithFriend();
+      if (winner == PLAYER_RECEIVE_REQ_SCREEN) {
+        titleDialogWinner = "Player ${widget.player2.firstname} won";
+      }
+      showDialog(
+          context: context,
+          builder: (_) {
+            return GameDialogWinner(titleDialogWinner, contentDialogWinner, () {
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => MyPage(widget.player1)));
+            }, "Main screen");
+          });
     } else {
-      doFristTurnSingle();
+      setState(() {
+        itemlist = doInit();
+        doFristTurnSingle();
+      });
     }
   }
 
@@ -293,34 +313,30 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
             .set(activePlayer);
       }
 
-
       if (activePlayer == PLAYER_SEND_REQ_SCREEN) {
         itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
         player1List.add(cellNumber);
-        if (widget.gameMode == GameMode.single){
-          activePlayer =PLAYER_RECEIVE_REQ_SCREEN;
+        if (widget.gameMode == GameMode.single) {
+          activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
         }
       } else {
         itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
         player2List.add(cellNumber);
-        if (widget.gameMode == GameMode.single){
+        if (widget.gameMode == GameMode.single) {
           activePlayer = PLAYER_SEND_REQ_SCREEN;
         }
       }
       String winner;
       if (player1List.length > 4 || player2List.length > 4) {
-        winner = checkWinnerSingle(cellNumber);
+        winner = checkWinner(cellNumber);
       }
       if (winner == 0) {
         if (itemlist.every((p) => p.child.text != "")) {
-          showDialog(
-              context: context,
-              builder: (_) =>
-                  new GameDialog('Finish', 'Next round ?', resetGame));
+          resetGame(winner);
         }
       } else {
         if (widget.gameMode == GameMode.single) {
-          int timeForAi = 1000 + Random().nextInt(500);
+          int timeForAi = 50 + Random().nextInt(250);
           print('Time for AI: $timeForAi');
           Timer(Duration(milliseconds: timeForAi), () {
             activePlayer == PLAYER_RECEIVE_REQ_SCREEN
@@ -332,7 +348,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     });
   }
 
-  String checkWinnerSingle(id) {
+  String checkWinner(id) {
     String winner;
     player1List.sort((i1, i2) => i1 - i2);
     player2List.sort((i1, i2) => i1 - i2);
@@ -345,22 +361,16 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     }
 
     if (winner != null) {
-      String dialogMsg = 'Press the reset button to play again.';
-      var gameDialog = "Player ${widget.player1.firstname} Won";
       if (winner == PLAYER_SEND_REQ_SCREEN) {
         setState(() {
           player1Score += 1;
         });
-        showDialog(
-            context: context,
-            builder: (_) => new GameDialog(gameDialog, dialogMsg, resetGame));
+        resetGame(winner);
       } else {
         setState(() {
           player2Score += 1;
         });
-        showDialog(
-            context: context,
-            builder: (_) => new GameDialog(gameDialog, dialogMsg, resetGame));
+        resetGame(winner);
       }
     }
 
@@ -722,5 +732,14 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
       });
     }
+  }
+
+  void pushToLoser() async {
+    await FirebaseDatabase.instance
+        .reference()
+        .child(GAME_TBL)
+        .child(widget.gameId)
+        .child(WINNER)
+        .set(true);
   }
 }

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
-class GameDialog extends StatelessWidget {
+void main() => runApp(GameDialogWinner('title', 'content', () {}));
+
+class GameDialogWinner extends StatelessWidget {
   final title;
   final content;
   final VoidCallback callback;
   final actionText;
 
-  GameDialog(this.title, this.content, this.callback,
-      [this.actionText = "Reset"]);
+  GameDialogWinner(this.title, this.content, this.callback,
+      [this.actionText = "Play again!"]);
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +21,7 @@ class GameDialog extends StatelessWidget {
           onPressed: callback,
           child: new Text(actionText),
           color: Colors.white,
-        )
+        ),
       ],
     );
   }
