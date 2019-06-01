@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:english_words/english_words.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flt_caro/src/blocs/mypage_bloc.dart';
@@ -15,7 +14,6 @@ import 'package:flt_caro/src/utils/map_utils.dart';
 import 'package:flt_caro/src/utils/shared_preferences_utils.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,8 +31,8 @@ class MyPage extends StatefulWidget {
 
 class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   final FirebaseMessaging firebaseMessaging = FirebaseMessaging();
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+//  final GoogleSignIn _googleSignIn = GoogleSignIn();
+//  final FirebaseAuth _auth = FirebaseAuth.instance;
   AnimationController _controller;
   Animation _firstAnimationMenu;
   Animation _lateAnimationMenu;
@@ -385,32 +383,6 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
               widget.user,
               title: 'Friend list',
             )));
-//    Navigator.pushNamed(context, FRIENDS_LIST);
-  }
-
-  Future<FirebaseUser> signInWithGoogle() async {
-    var user = await _auth.currentUser();
-    if (user == null) {
-      GoogleSignInAccount googleUser = _googleSignIn.currentUser;
-      if (googleUser == null) {
-        googleUser = await _googleSignIn.signInSilently();
-        if (googleUser == null) {
-          googleUser = await _googleSignIn.signIn();
-        }
-      }
-
-      GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.getCredential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      final FirebaseUser user = await _auth.signInWithCredential(credential);
-
-      print("signed in as " + user.displayName);
-    }
-
-    return user;
   }
 
   void removeUserInfo() async {

@@ -8,6 +8,8 @@ import 'package:flt_caro/src/ui/my_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'src/ui/tips_screen.dart';
+
 void main() {
   SharedPreferences.getInstance().then((prefs) {
     runApp(MyApp(prefs));
@@ -25,7 +27,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   Widget build(BuildContext context) {
     String userJson = widget.preferences.getString(USER_PREFS_KEY);
@@ -35,11 +36,22 @@ class _MyAppState extends State<MyApp> {
     }
     GlobalKey<ScaffoldState> _mainScaffold = new GlobalKey<ScaffoldState>();
 
+    Widget _scaffold() {
+      bool seen = (widget.preferences.getBool('seen') ?? false);
+      if (seen) {
+        return Scaffold(
+            key: _mainScaffold,
+            body: widget.user == null ? Loginpage() : MyPage(widget.user));
+      } else {
+        return TipsScreen(prefs: widget.preferences);
+      }
+    }
+
     return LoginBlocProvider(
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Demo app',
-        home: Scaffold(key: _mainScaffold,body: widget.user == null ? Loginpage() : MyPage(widget.user)),
+        home: _scaffold(),
         routes: <String, WidgetBuilder>{
           MYPAGE: (BuildContext context) => MyPage(widget.user),
         },
@@ -47,4 +59,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-

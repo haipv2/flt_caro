@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flt_caro/src/blocs/game_bloc.dart';
 import 'package:flt_caro/src/common/common.dart';
@@ -12,6 +11,7 @@ import 'package:flutter/material.dart';
 
 import '../common/game_enums.dart';
 import 'fighting_bar.dart';
+import 'game_dialog_animation.dart';
 import 'game_dialog_loser.dart';
 import 'game_dialog_surrender.dart';
 import 'game_dialog_winner.dart';
@@ -21,7 +21,6 @@ import 'my_page.dart';
 import 'user_list_page.dart';
 
 class Game extends StatefulWidget {
-  FirebaseUser firebaseUser;
   User player1;
   GameMode gameMode;
 
@@ -52,6 +51,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   AnimationController _fightingController;
   Animation<double> _fightingAnimation;
   Animation<double> _itemAnimation;
+  AnimationController _dialogController;
+  Animation<double> _dialogAnimation;
 
   GameBloc _bloc;
 
@@ -60,13 +61,17 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   @override
   void dispose() {
     _fightingController.dispose();
-//    _scoreController.dispose();
+    _dialogController.dispose();
 
     super.dispose();
   }
 
   @override
   void initState() {
+    _dialogController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 1500));
+    _dialogAnimation = Tween(begin: -1.0, end: 0.0).animate(
+        CurvedAnimation(parent: _dialogController, curve: Curves.elasticOut));
     _bloc = new GameBloc();
     if (widget.gameMode == GameMode.friends) {
       FirebaseDatabase.instance
@@ -87,11 +92,14 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
             showDialog(
                 context: context,
                 builder: (_) {
-                  return GameDialogSurrender(
-                      titleSurrenderDialog, contentSurrenderDlg, () {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (context) => MyPage(widget.player1)));
-                  }, "Quit");
+                  return GameDialogAnimate(
+                    animation: _dialogAnimation,
+                    child: GameDialogSurrender(
+                        titleSurrenderDialog, contentSurrenderDlg, () {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => MyPage(widget.player1)));
+                    }, "Quit"),
+                  );
                 });
           }
         } else if (key == WINNER) {
@@ -113,17 +121,20 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
             showDialog(
                 context: context,
                 builder: (_) {
-                  return GameDialogLoser(
-                    loser,
-                    titleDialogLoser,
-                    contentDialogLoser,
-                    () {
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => UserList(
-                                loser,
-                                title: 'Friend list',
-                              )));
-                    },
+                  return GameDialogAnimate(
+                    animation: _dialogAnimation,
+                    child: GameDialogLoser(
+                      loser,
+                      titleDialogLoser,
+                      contentDialogLoser,
+                      () {
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) => UserList(
+                                  loser,
+                                  title: 'Friend list',
+                                )));
+                      },
+                    ),
                   );
                 });
           }
@@ -285,10 +296,13 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       showDialog(
           context: context,
           builder: (_) {
-            return GameDialogWinner(titleDialogWinner, contentDialogWinner, () {
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => MyPage(widget.player1)));
-            }, "Quit");
+            return GameDialogAnimate(
+                child: GameDialogWinner(titleDialogWinner, contentDialogWinner,
+                    () {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => MyPage(widget.player1)));
+                }, "Quit"),
+                animation: _dialogAnimation);
           });
     } else {
       setState(() {
@@ -341,7 +355,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
             .reference()
             .child(GAME_TBL)
             .child(widget.gameId)
-            .child('${cellNumber}')
+            .child('$cellNumber')
             .set(activePlayer);
       }
 
@@ -362,11 +376,11 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       if (player1List.length > 4 || player2List.length > 4) {
         winner = checkWinner(cellNumber);
       }
-      if (winner == null) {
-        if (itemlist.every((p) => p.child.text != "")) {
-          resetGame(winner);
-        }
-      } else {
+//      if (winner == null) {
+//        if (itemlist.every((p) => p.child.text != "")) {
+//          resetGame(winner);
+//        }
+//      } else {
         if (widget.gameMode == GameMode.single) {
           int timeForAi = 50 + Random().nextInt(250);
           print('Time for AI: $timeForAi');
@@ -375,7 +389,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                 ? autoPlay(cellNumber)
                 : null;
           });
-        }
+//        }
       }
     });
   }
@@ -386,13 +400,22 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     player2List.sort((i1, i2) => i1 - i2);
     //check user 1 win
     if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
-      winner = doReferee(player2List, activePlayer, id);
+      winner = doReferee(player1List, activePlayer, id);
     } else {
       //check user 2 win
-      winner = doReferee(player1List, activePlayer, id);
+      winner = doReferee(player2List, activePlayer, id);
     }
 
     if (winner != null) {
+      if (winner == PLAYER_SEND_REQ_SCREEN) {
+        setState(() {
+          player1Score += 1;
+        });
+      } else {
+        setState(() {
+          player2Score += 1;
+        });
+      }
       resetGame(winner);
     }
 
@@ -544,27 +567,33 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   }
 
   void _backToMain() {
+    _dialogController.forward();
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          content: Text('Do you surrender in this game ?'),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('Not'),
-              onPressed: () {
-                Navigator.of(context).pop(CANCEL);
-              },
-            ),
-            FlatButton(
-              child: Text('Yes'),
-              onPressed: () {
-                _bloc.cleanGame(widget.gameId);
-                Navigator.pushReplacementNamed(context, MYPAGE);
-                sendSurrenderReq();
-              },
-            ),
-          ],
+        return GameDialogAnimate(
+          animation: _dialogAnimation,
+          child: AlertDialog(
+            content: Text('Do you surrender in this game ?'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Not'),
+                onPressed: () {
+                  Navigator.of(context).pop(CANCEL);
+                },
+              ),
+              FlatButton(
+                child: Text('Yes'),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, MYPAGE);
+                  if (widget.gameMode == GameMode.friends) {
+                    _bloc.cleanGame(widget.gameId);
+                    sendSurrenderReq();
+                  }
+                },
+              ),
+            ],
+          ),
         );
       },
     );
@@ -810,26 +839,13 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   }
 
   void sendSurrenderReq() async {
-//    var pushIdFrom = await SharedPreferencesUtils.getStringToPreferens(PUSH_ID);
-//    String opponentPushId = widget.player2.currentPushId;
-//    var base = 'https://us-central1-caro-53f7d.cloudfunctions.net';
-    var loginId = widget.player1.loginId;
-//
-//    String dataURL =
-//        '$base/sendSurrenderReq?to=$opponentPushId}&fromPushId=$pushIdFrom&fromId=${widget.player1.loginId}&fromName=${widget.player1.firstname}&fromGender=${widget.player1.gender}&type=${SURRENDER}}';
-//    print(dataURL);
-//    String gameId;
-//    if (widget.type == PLAYER_SEND_REQ_SCREEN) {
-//      gameId = '$loginId-${widget.player2.loginId}';
-//    } else {
-//      gameId = '${widget.player2.loginId}-$loginId';
-//    }
-    await FirebaseDatabase.instance
-        .reference()
-        .child(GAME_TBL)
-        .child(widget.gameId)
-        .child(SURRENDER)
-        .set(json.encode(widget.player1));
-//    http.get(dataURL);
+    if (widget.gameMode == GameMode.friends) {
+      await FirebaseDatabase.instance
+          .reference()
+          .child(GAME_TBL)
+          .child(widget.gameId)
+          .child(SURRENDER)
+          .set(json.encode(widget.player1));
+    }
   }
 }
