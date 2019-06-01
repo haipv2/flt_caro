@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flt_caro/src/blocs/game_bloc.dart';
@@ -8,7 +10,6 @@ import 'package:flt_caro/src/common/common.dart';
 import 'package:flt_caro/src/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_button/flutter_reactive_button.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 
 import '../common/game_enums.dart';
 import 'fighting_bar.dart';
@@ -17,6 +18,7 @@ import 'game_dialog_winner.dart';
 import 'game_item.dart';
 import 'game_item_animation.dart';
 import 'my_page.dart';
+import 'user_list_page.dart';
 
 class Game extends StatefulWidget {
   FirebaseUser firebaseUser;
@@ -88,19 +90,38 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         print('----------$key');
         if (key == WINNER) {
           String contentDialogLoser =
-              'Press the button to play again. Next round, you play first';
-          var titleDialogLoser = "OPPS!!! You losed T_T ";
+              'Let\'s invite your openent to play again';
+          var value = event.snapshot.value;
+          User loser = User.fromJson(json.decode(value));
+          var titleDialogLoser = "OPPS!!! You losed ";
 
-          showDialog(
-              context: context,
-              builder: (_) {
-                return GameDialogLoser(titleDialogLoser, contentDialogLoser,
-                        () {
+          if (widget.player1.loginId == loser.loginId) {
+            setState(() {
+              if (loser.loginId == widget.player1.loginId) {
+                player2Score += 1;
+              } else {
+                player1Score += 1;
+              }
+            });
+
+            showDialog(
+                context: context,
+                builder: (_) {
+                  return GameDialogLoser(
+                    loser,
+                    titleDialogLoser,
+                    contentDialogLoser,
+                    () {
                       Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => MyPage(widget.player1)));
-                    });
-              });
-        }else if (key != NEXT_GAME) {
+                          builder: (context) => UserList(
+                                loser,
+                                title: 'Friend list',
+                              )));
+                    },
+                  );
+                });
+          }
+        } else if (key != NEXT_GAME) {
           loadGameItem(key, activePlayer);
           if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
             activePlayer = PLAYER_SEND_REQ_SCREEN;
@@ -241,22 +262,30 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   }
 
   Widget resetGame(String winner) {
-    String contentDialogWinner =
-        'Next round will be started by your friend.\n Please wait or back to the Main page';
-    var titleDialogWinner = "Player ${widget.player1.firstname} Won";
-    if (widget.gameMode == GameMode.friends) {
-      pushToLoser();
-
-      if (winner == PLAYER_RECEIVE_REQ_SCREEN) {
-        titleDialogWinner = "Player ${widget.player2.firstname} won";
+    String contentDialogWinner = 'Next round will be started by your friend.';
+    var winnerName;
+    if (widget.type == PLAYER_SEND_REQ_SCREEN) {
+      if (winner == PLAYER_SEND_REQ_SCREEN) {
+        winnerName = widget.player1.firstname;
+      } else {
+        winnerName = widget.player2.firstname;
       }
+    } else {
+      print(winner);
+      winnerName = widget.player1.firstname;
+    }
+
+    var titleDialogWinner = "Player ${winnerName} Won";
+    if (widget.gameMode == GameMode.friends) {
+      pushToLoser(winner);
+
       showDialog(
           context: context,
           builder: (_) {
             return GameDialogWinner(titleDialogWinner, contentDialogWinner, () {
               Navigator.of(context).pushReplacement(MaterialPageRoute(
                   builder: (context) => MyPage(widget.player1)));
-            }, "Main screen");
+            }, "Quit");
           });
     } else {
       setState(() {
@@ -361,17 +390,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     }
 
     if (winner != null) {
-      if (winner == PLAYER_SEND_REQ_SCREEN) {
-        setState(() {
-          player1Score += 1;
-        });
-        resetGame(winner);
-      } else {
-        setState(() {
-          player2Score += 1;
-        });
-        resetGame(winner);
-      }
+      resetGame(winner);
     }
 
     return winner;
@@ -734,12 +753,47 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     }
   }
 
-  void pushToLoser() async {
+  void pushToLoser(String winner) async {
+    User loser;
+    if (widget.type == PLAYER_SEND_REQ_SCREEN) {
+      if (winner == PLAYER_SEND_REQ_SCREEN) {
+        setState(() {
+          player1Score += 1;
+        });
+        loser = widget.player2;
+      } else {
+        setState(() {
+          player2Score += 1;
+        });
+        loser = widget.player1;
+      }
+    } else {
+      if (winner == PLAYER_SEND_REQ_SCREEN) {
+        setState(() {
+          player2Score += 1;
+        });
+        loser = widget.player1;
+      } else {
+        loser = widget.player2;
+        setState(() {
+          player1Score += 1;
+        });
+      }
+    }
     await FirebaseDatabase.instance
         .reference()
         .child(GAME_TBL)
         .child(widget.gameId)
         .child(WINNER)
+        .set(json.encode(loser));
+  }
+
+  void pushNextGame() async {
+    await FirebaseDatabase.instance
+        .reference()
+        .child(GAME_TBL)
+        .child(widget.gameId)
+        .child(NEXT_GAME)
         .set(true);
   }
 }

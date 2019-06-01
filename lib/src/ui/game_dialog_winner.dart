@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(GameDialogWinner('title', 'content', () {}));
-
 class GameDialogWinner extends StatelessWidget {
   final title;
   final content;
@@ -9,7 +7,7 @@ class GameDialogWinner extends StatelessWidget {
   final actionText;
 
   GameDialogWinner(this.title, this.content, this.callback,
-      [this.actionText = "Play again!"]);
+      [this.actionText = ""]);
 
   @override
   Widget build(BuildContext context) {

@@ -10,8 +10,8 @@ class GameDialogLoser extends StatelessWidget {
   final actionText;
   User player;
 
-  GameDialogLoser(this.title, this.content, this.callback,
-      [this.actionText = "Play Again", this.player]);
+  GameDialogLoser(this.player, this.title, this.content, this.callback,
+      [this.actionText = "Find"]);
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class GameDialogLoser extends StatelessWidget {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => MyPage(player)));
           },
-          child: new Text('Main screen'),
+          child: new Text('Quit'),
           color: Colors.white,
         ),
         new FlatButton(
