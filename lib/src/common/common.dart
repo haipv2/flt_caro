@@ -46,3 +46,5 @@ const NEXT_GAME='nextGame';
 const PLAYER_SEND_REQ_SCREEN='first';
 const PLAYER_RECEIVE_REQ_SCREEN='second';
 const WINNER='winner';
+const USER_AVA_TAG = 'userAvaTag';
+const SURRENDER='surrender';

@@ -3,7 +3,6 @@ import 'package:flt_caro/src/common/common.dart';
 import 'package:flt_caro/src/ui/login_page.dart';
 import 'package:flt_caro/src/ui/widgets/custom_flat_button.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'my_page.dart';
 
@@ -252,46 +251,6 @@ class _SignUpState extends State<SignUp> {
           ],
         );
 
-    var registerByOtherWay = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 10.0),
-          child: InkWell(
-            onTap: _pressFacebookSignup,
-            child: Text(
-              "Facebook Login",
-              style: TextStyle(
-                  color: Color.fromRGBO(59, 89, 152, 1.0),
-                  fontWeight: FontWeight.w300,
-                  fontSize: 15,
-                  decoration: TextDecoration.underline),
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 1.0),
-          child: Text('OR',
-              style: TextStyle(
-                color: Colors.grey,
-              )),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 10.0),
-          child: InkWell(
-            onTap: _pressGoogleSignup,
-            child: Text(
-              "Google login",
-              style: TextStyle(
-                  color: Color.fromRGBO(59, 89, 152, 1.0),
-                  fontWeight: FontWeight.w300,
-                  fontSize: 15,
-                  decoration: TextDecoration.underline),
-            ),
-          ),
-        ),
-      ],
-    );
     return Scaffold(
       key: scaffoldSignupKey,
       appBar: AppBar(
@@ -352,14 +311,6 @@ class _SignUpState extends State<SignUp> {
         ),
       ),
     );
-  }
-
-  void _pressFacebookSignup({BuildContext context}) {
-    print('facebook login');
-  }
-
-  void _pressGoogleSignup({BuildContext context}) {
-    print('BEGIN: google login');
   }
 
   void _doRegister() async {

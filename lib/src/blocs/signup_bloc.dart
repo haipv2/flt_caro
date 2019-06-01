@@ -8,7 +8,6 @@ import 'package:flt_caro/src/resources/repository.dart';
 import 'package:flt_caro/src/utils/shared_preferences_utils.dart';
 import 'package:flt_caro/src/utils/validator_utils.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignupBloc extends Object {
   final FirebaseMessaging firebaseMessaging = FirebaseMessaging();

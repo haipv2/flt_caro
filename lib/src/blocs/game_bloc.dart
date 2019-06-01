@@ -17,4 +17,9 @@ class GameBloc{
     await _repository.cleanGame(gameId);
   }
 
+  Future<List<dynamic>> getListPushIdViaLoginId(String loginId) async{
+    var result = await _repository.getListPushIdViaLoginId(loginId);
+    return result;
+  }
+
 }

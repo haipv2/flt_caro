@@ -1,6 +1,4 @@
-import 'package:flt_caro/src/resources/repository.dart';
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
 import 'login_bloc.dart';
 
 class LoginBlocProvider extends InheritedWidget {

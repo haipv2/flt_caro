@@ -9,11 +9,11 @@ import 'package:flt_caro/src/blocs/game_bloc.dart';
 import 'package:flt_caro/src/common/common.dart';
 import 'package:flt_caro/src/models/user.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_reactive_button/flutter_reactive_button.dart';
 
 import '../common/game_enums.dart';
 import 'fighting_bar.dart';
 import 'game_dialog_loser.dart';
+import 'game_dialog_surrender.dart';
 import 'game_dialog_winner.dart';
 import 'game_item.dart';
 import 'game_item_animation.dart';
@@ -52,18 +52,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   AnimationController _fightingController;
   Animation<double> _fightingAnimation;
   Animation<double> _itemAnimation;
-  AnimationController _turnController;
-  Animation<double> _turnAnimation;
 
-//  AnimationController _scoreController;
-//  Animation<double> _scoreAnimation;
-
-  List<ReactiveIconDefinition> _icons = <ReactiveIconDefinition>[
-    ReactiveIconDefinition(
-      assetIcon: 'assets/images/mess.gif',
-      code: 'mess',
-    ),
-  ];
   GameBloc _bloc;
 
   double _opacityTurn;
@@ -88,7 +77,24 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
           .listen((Event event) {
         String key = event.snapshot.key;
         print('----------$key');
-        if (key == WINNER) {
+        if (key == SURRENDER) {
+          String titleSurrenderDialog = 'Congrats!!';
+          String contentSurrenderDlg =
+              'WOW... you are so powerful. Your oponent already surrender. You win ^_^';
+          var value = event.snapshot.value;
+          User surrenderer = User.fromJson(json.decode(value));
+          if (widget.player1.loginId != surrenderer.loginId) {
+            showDialog(
+                context: context,
+                builder: (_) {
+                  return GameDialogSurrender(
+                      titleSurrenderDialog, contentSurrenderDlg, () {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => MyPage(widget.player1)));
+                  }, "Quit");
+                });
+          }
+        } else if (key == WINNER) {
           String contentDialogLoser =
               'Let\'s invite your openent to play again';
           var value = event.snapshot.value;
@@ -148,8 +154,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     _fightingController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 3500))
           ..addStatusListener(handlerFightingAnimation);
-    _turnController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 3000));
 
     _fightingAnimation = Tween(begin: 500.0, end: 1.0).animate(CurvedAnimation(
         parent: _fightingController,
@@ -158,7 +162,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         parent: _fightingController,
         curve: Interval(0.2, 1, curve: Curves.fastOutSlowIn)))
       ..addStatusListener(handlerStatus);
-    _turnAnimation = Tween(begin: 0.0, end: 1.0).animate(_turnController);
 
     itemlist = doInit();
     if (GameMode.single == widget.gameMode) {
@@ -261,7 +264,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     );
   }
 
-  Widget resetGame(String winner) {
+  void resetGame(String winner) {
     String contentDialogWinner = 'Next round will be started by your friend.';
     var winnerName;
     if (widget.type == PLAYER_SEND_REQ_SCREEN) {
@@ -359,7 +362,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       if (player1List.length > 4 || player2List.length > 4) {
         winner = checkWinner(cellNumber);
       }
-      if (winner == 0) {
+      if (winner == null) {
         if (itemlist.every((p) => p.child.text != "")) {
           resetGame(winner);
         }
@@ -557,7 +560,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
               child: Text('Yes'),
               onPressed: () {
                 _bloc.cleanGame(widget.gameId);
-                Navigator.pushNamed(context, MYPAGE);
+                Navigator.pushReplacementNamed(context, MYPAGE);
+                sendSurrenderReq();
               },
             ),
           ],
@@ -614,13 +618,21 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                 ),
               ),
               Center(
-                child: GestureDetector(
-                  onTap: _backToMain,
-                  child: Image.asset(
-                    SURRENDER_FLAG,
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
+                child: Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black12, width: 1.0),
+                      borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                  child: Padding(
+                    padding: EdgeInsets.all(5.0),
+                    child: GestureDetector(
+                      onTap: _backToMain,
+                      child: Image.asset(
+                        SURRENDER_FLAG,
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -682,7 +694,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                   child: Padding(
                     padding: const EdgeInsets.only(right: 15),
                     child: Text(
-                      '${player2Score}',
+                      '$player2Score',
                       style: TextStyle(fontSize: 25),
                       textAlign: TextAlign.left,
                     ),
@@ -795,5 +807,29 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         .child(widget.gameId)
         .child(NEXT_GAME)
         .set(true);
+  }
+
+  void sendSurrenderReq() async {
+//    var pushIdFrom = await SharedPreferencesUtils.getStringToPreferens(PUSH_ID);
+//    String opponentPushId = widget.player2.currentPushId;
+//    var base = 'https://us-central1-caro-53f7d.cloudfunctions.net';
+    var loginId = widget.player1.loginId;
+//
+//    String dataURL =
+//        '$base/sendSurrenderReq?to=$opponentPushId}&fromPushId=$pushIdFrom&fromId=${widget.player1.loginId}&fromName=${widget.player1.firstname}&fromGender=${widget.player1.gender}&type=${SURRENDER}}';
+//    print(dataURL);
+//    String gameId;
+//    if (widget.type == PLAYER_SEND_REQ_SCREEN) {
+//      gameId = '$loginId-${widget.player2.loginId}';
+//    } else {
+//      gameId = '${widget.player2.loginId}-$loginId';
+//    }
+    await FirebaseDatabase.instance
+        .reference()
+        .child(GAME_TBL)
+        .child(widget.gameId)
+        .child(SURRENDER)
+        .set(json.encode(widget.player1));
+//    http.get(dataURL);
   }
 }

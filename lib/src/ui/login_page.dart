@@ -162,10 +162,6 @@ class _LoginpageState extends State<Loginpage> {
     );
   }
 
-  void _forgotPassword() {
-    print('press forget password');
-  }
-
   void signUpUser() {
     print('signup user');
     Navigator.pushReplacement(

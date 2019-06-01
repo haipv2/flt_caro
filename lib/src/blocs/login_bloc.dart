@@ -14,14 +14,6 @@ class LoginBloc {
   final _loginStreamController = PublishSubject<bool>();
   final _imageStreamLoginController = BehaviorSubject<String>();
 
-  final _changeImage =
-      StreamTransformer<String, String>.fromHandlers(handleData: (email, sink) {
-    if (email.length == 3) {
-      print('enter 3 characters');
-      sink.add('new image');
-    }
-  });
-
   StreamTransformer<String, String> _validateLoginId =
       StreamTransformer<String, String>.fromHandlers(
           handleData: (loginId, sink) {

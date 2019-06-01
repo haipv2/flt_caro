@@ -89,7 +89,7 @@ class FirestoreProvider {
     });
     if (password == passwordInput) {
       return User()
-        ..loginId = loginIdInput
+        ..loginId = loginId
         ..email = email
         ..firstname = firstName
         ..lastname = lastName
@@ -106,8 +106,6 @@ class FirestoreProvider {
 
     Map<String, dynamic> users = snapshot.value.cast<String, dynamic>();
     User result;
-    String email, password, firstName, lastName;
-    int gender;
     users.forEach((key, value) {
       if (key == loginIdInput) {
         result = buildUserInfo(value);
@@ -180,11 +178,6 @@ class FirestoreProvider {
         .onChildAdded
         .listen((Event event) {
           print(event);
-//      String key = event.snapshot.key;
-//      if (key != 'restart') {
-//        int row = int.parse(key.substring(0, 1));
-//        int column = int.parse(key.substring(2, 3));
-//      }
     });
   }
 

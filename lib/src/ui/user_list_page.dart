@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 
 class UserList extends StatefulWidget {
   final String title;
-  User currentUser;
+  final User currentUser;
 
   UserList(this.currentUser, {Key key, this.title}) : super(key: key);
 
@@ -27,7 +27,6 @@ class _UserListState extends State<UserList> {
     super.initState();
   }
 
-  TextEditingController _filterController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -41,26 +40,6 @@ class _UserListState extends State<UserList> {
               ),
           itemCount: _users.length,
           itemBuilder: (context, index) => buildListRow(context, index)),
-//        Column(
-//          children: <Widget>[
-////            Padding(
-////              padding: EdgeInsets.all(8.0),
-////              child: TextField(
-////                controller: _filterController,
-////                decoration: InputDecoration(
-////                  hintText: 'enter login id',
-////                ),
-//////                onChanged: _onChanged,
-////              ),
-////            ),
-//            ListView.separated(
-//                separatorBuilder: (context, index) => Divider(
-//                      color: Colors.black,
-//                    ),
-//                itemCount: _users.length,
-//                itemBuilder: (context, index) => buildListRow(context, index)),
-//          ],
-//        )
     );
   }
 
@@ -80,7 +59,7 @@ class _UserListState extends State<UserList> {
       );
 
   void fetchUsers(String currentLoginId) async {
-    var snapshot = await _userPushBloc.getAllUserExceptLoginId(currentLoginId).then((usersList) {
+    await _userPushBloc.getAllUserExceptLoginId(currentLoginId).then((usersList) {
       usersList.forEach((user) {
         if (currentLoginId == user.loginId) return;
           if (user != null) {
@@ -91,18 +70,6 @@ class _UserListState extends State<UserList> {
       });
     });
     print('list users size: ${_users.length}');
-//    var snapshot =
-//        await FirebaseDatabase.instance.reference().child(USERS).once();
-//    Map<String, dynamic> users = snapshot.value.cast<String, dynamic>();
-//    users.forEach((loginId, userMap) {
-//      if (currentLoginId == loginId) return;
-//      User user = parseUser(loginId, userMap);
-//      if (user != null) {
-//        setState(() {
-//          _users.add(user);
-//        });
-//      }
-//    });
   }
 
   User parseUser(String loginId, Map<dynamic, dynamic> user) {
@@ -140,9 +107,9 @@ class _UserListState extends State<UserList> {
 
     pushIds.forEach((item) {
       String dataURL =
-          '$base/sendPlayReq?to=${item.toString()}&fromPushId=$pushIdFrom&fromId=${player1Items}&fromName=${widget.currentUser.firstname}&fromGender=${widget.currentUser.gender}&type=invite';
+          '$base/sendPlayReq?to=${item.toString()}&fromPushId=$pushIdFrom&fromId=$player1Items&fromName=${widget.currentUser.firstname}&fromGender=${widget.currentUser.gender}&type=invite';
       print(dataURL);
-      String gameId = '${player1Items}-${friendsLoginId}';
+      String gameId = '$player1Items-$friendsLoginId';
       FirebaseDatabase.instance
           .reference()
           .child(GAME_TBL)
@@ -152,12 +119,4 @@ class _UserListState extends State<UserList> {
     });
   }
 
-  void _onChanged(String value) {
-    setState(() {
-      _users = _users.where((user) {
-        return user.firstname.contains(value);
-      });
-      print(_users);
-    });
-  }
 }

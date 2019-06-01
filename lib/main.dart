@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:english_words/english_words.dart';
 import 'package:flt_caro/src/blocs/login_bloc_provider.dart';
 import 'package:flt_caro/src/common/common.dart';
 import 'package:flt_caro/src/models/user.dart';
@@ -30,7 +29,6 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     String userJson = widget.preferences.getString(USER_PREFS_KEY);
-    final aiName = WordPair.random();
     if (userJson != null && userJson.isNotEmpty) {
       Map userMap = jsonDecode(userJson);
       widget.user = User.fromJson(userMap);

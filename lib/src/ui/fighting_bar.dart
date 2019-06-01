@@ -7,8 +7,6 @@ class FightingBar extends AnimatedWidget {
   @override
   Widget build(BuildContext context) {
     final Animation<double> animation = listenable;
-    double width = MediaQuery.of(context).size.width;
-
     return Center(
       child: Transform.scale(
         scale: 1,

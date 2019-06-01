@@ -8,7 +8,7 @@ class GameDialogLoser extends StatelessWidget {
   final content;
   final VoidCallback callback;
   final actionText;
-  User player;
+  final User player;
 
   GameDialogLoser(this.player, this.title, this.content, this.callback,
       [this.actionText = "Find"]);

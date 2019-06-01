@@ -25,7 +25,7 @@ import 'user_info_page.dart' as userInfo;
 class MyPage extends StatefulWidget {
   final User user;
 
-  MyPage(this.user) {}
+  MyPage(this.user);
 
   @override
   _MyPageState createState() => _MyPageState();
@@ -88,6 +88,18 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     updateFcmToken();
   }
 
+  @override
+  void didChangeDependencies() {
+    print('dependencies changed');
+    super.didChangeDependencies();
+  }
+
+  @override
+  void didUpdateWidget(MyPage oldWidget) {
+    print('update widget');
+    super.didUpdateWidget(oldWidget);
+  }
+
   void handleMessage(Map<String, dynamic> message) async {
     var type = getValueFromMapData(message, 'type');
     var fromId = getValueFromMapData(message, 'fromId');
@@ -98,8 +110,8 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
         var currentUser = widget.user;
         String gameId = '${currentUser.loginId}-$fromId';
         Navigator.of(context).pushReplacement(new MaterialPageRoute(
-            builder: (context) =>
-                new Game(GameMode.friends, currentUser, user2, gameId, PLAYER_SEND_REQ_SCREEN)));
+            builder: (context) => new Game(GameMode.friends, currentUser, user2,
+                gameId, PLAYER_SEND_REQ_SCREEN)));
       });
     }
   }
@@ -147,20 +159,18 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     String dataURL =
         '$base/resPlayReq?to=$fromPushId&fromPushId=$pushId&fromId=${user.loginId}&fromName=${user.firstname}&fromGender=${user.gender}&type=accept';
     print(dataURL);
-    http.Response response = await http.get(dataURL);
+    await http.get(dataURL);
     String gameId = '$fromId-${user.loginId}';
     _bloc.getUserViaLoginId(fromId).then((user2) {
       Navigator.of(context).pushReplacement(new MaterialPageRoute(
-          builder: (context) =>
-              new Game(GameMode.friends, user, user2, gameId, PLAYER_RECEIVE_REQ_SCREEN)));
+          builder: (context) => new Game(GameMode.friends, user, user2, gameId,
+              PLAYER_RECEIVE_REQ_SCREEN)));
     });
   }
 
-  // Not sure how FCM token gets updated yet
-  // just to make sure correct one is always set
   void updateFcmToken() async {
     var pushId = await firebaseMessaging.getToken();
-    var listPushId =
+//    var listPushId =
         _bloc.getListPushId(widget.user.loginId).then((listPushId) {
       SharedPreferencesUtils.setStringToPreferens(PUSH_ID, pushId);
       if (!listPushId.contains(pushId)) {
@@ -171,23 +181,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
             .child(widget.user.loginId)
             .set({PUSH_ID: listPushId});
       }
-//      print(pushId);
     });
-    print('updated FCM token');
-
-//    var currentUser = await _auth.currentUser();
-//    if (currentUser != null) {
-//      var token = await firebaseMessaging.getToken();
-//      print(token);
-//
-//      SharedPreferencesUtils.setStringToPreferens(PUSH_ID, token);
-//
-//      FirebaseDatabase.instance
-//          .reference()
-//          .child(USERS)
-//          .child(currentUser.uid)
-//          .update({PUSH_ID: token});
-//    }
   }
 
   @override
@@ -218,7 +212,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
                             User()
                               ..firstname = '$aiName'
                               ..loginId = '${aiName}Id'
-                              ..email = '${aiName}@gmail.com',
+                              ..email = '$aiName@gmail.com',
                             null,
                             null,
                           ),
@@ -307,7 +301,6 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
               'CARO GAME',
               style: TextStyle(fontFamily: 'indie flower'),
             ),
-//            leading: Container(),
           ),
           drawer: myPageDrawer(),
           body: Column(
@@ -334,6 +327,9 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
 
   Widget myPageDrawer() {
     Size size = MediaQuery.of(context).size;
+    String imageUrl = widget.user.gender == 1
+        ? 'assets/images/male.png'
+        : 'assets/images/female.png';
     return SizedBox(
       width: size.width * 3 / 4,
       child: Drawer(
@@ -346,11 +342,12 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
               UserAccountsDrawerHeader(
                 accountName: Text(widget.user.firstname),
                 accountEmail: Text(widget.user.email),
-                currentAccountPicture: CircleAvatar(
-                  child: widget.user.gender == 1
-                      ? Image.asset('assets/images/male.png')
-                      : Image.asset('assets/images/female.png'),
-                  backgroundColor: Colors.white,
+                currentAccountPicture: Hero(
+                  tag: USER_AVA_TAG,
+                  child: CircleAvatar(
+                    child: Image.asset(imageUrl),
+                    backgroundColor: Colors.white,
+                  ),
                 ),
                 decoration: BoxDecoration(
                   color: Colors.blue,
@@ -362,7 +359,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
                 onTap: () {
                   Navigator.of(context)
                       .push(MaterialPageRoute(builder: (context) {
-                    return userInfo.UserInfo(widget.user);
+                    return userInfo.UserInfo(widget.user,imageUrl);
                   }));
                 },
               ),
