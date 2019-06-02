@@ -1,7 +1,7 @@
-import 'package:flt_caro/src/blocs/login_bloc.dart';
-import 'package:flt_caro/src/blocs/login_bloc_provider.dart';
-import 'package:flt_caro/src/ui/signup_page.dart';
-import 'package:flt_caro/src/utils/shared_preferences_utils.dart';
+import 'package:ticcar5/src/blocs/login_bloc.dart';
+import 'package:ticcar5/src/blocs/login_bloc_provider.dart';
+import 'package:ticcar5/src/ui/signup_page.dart';
+import 'package:ticcar5/src/utils/shared_preferences_utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 

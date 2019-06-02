@@ -4,14 +4,14 @@ import 'dart:io';
 import 'package:english_words/english_words.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flt_caro/src/blocs/mypage_bloc.dart';
-import 'package:flt_caro/src/common/common.dart';
-import 'package:flt_caro/src/models/user.dart';
-import 'package:flt_caro/src/ui/game_page.dart';
-import 'package:flt_caro/src/ui/login_page.dart';
-import 'package:flt_caro/src/ui/user_list_page.dart';
-import 'package:flt_caro/src/utils/map_utils.dart';
-import 'package:flt_caro/src/utils/shared_preferences_utils.dart';
+import 'package:ticcar5/src/blocs/mypage_bloc.dart';
+import 'package:ticcar5/src/common/common.dart';
+import 'package:ticcar5/src/models/user.dart';
+import 'package:ticcar5/src/ui/game_page.dart';
+import 'package:ticcar5/src/ui/login_page.dart';
+import 'package:ticcar5/src/ui/user_list_page.dart';
+import 'package:ticcar5/src/utils/map_utils.dart';
+import 'package:ticcar5/src/utils/shared_preferences_utils.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -150,7 +150,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
         },
         () {
           accept(message);
-        },
+        },'NO','PLAY'
       ),
     );
   }

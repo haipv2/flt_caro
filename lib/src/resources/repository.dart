@@ -1,6 +1,6 @@
-import 'package:flt_caro/src/models/user.dart';
-import 'package:flt_caro/src/models/user_push.dart';
-import 'package:flt_caro/src/resources/firestore_provider.dart';
+import 'package:ticcar5/src/models/user.dart';
+import 'package:ticcar5/src/models/user_push.dart';
+import 'package:ticcar5/src/resources/firestore_provider.dart';
 
 class Repository {
   final _firestoreProvider = FirestoreProvider();

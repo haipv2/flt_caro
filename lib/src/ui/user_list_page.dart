@@ -1,8 +1,8 @@
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flt_caro/src/blocs/user_push_bloc.dart';
-import 'package:flt_caro/src/common/common.dart';
-import 'package:flt_caro/src/models/user.dart';
-import 'package:flt_caro/src/utils/shared_preferences_utils.dart';
+import 'package:ticcar5/src/blocs/user_push_bloc.dart';
+import 'package:ticcar5/src/common/common.dart';
+import 'package:ticcar5/src/models/user.dart';
+import 'package:ticcar5/src/utils/shared_preferences_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 

@@ -1,8 +1,8 @@
-import 'package:flt_caro/src/common/common.dart';
-import 'package:flt_caro/src/models/tips.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ticcar5/src/common/common.dart';
+import 'package:ticcar5/src/models/tips.dart';
 
 import 'widgets/custom_flat_button.dart';
 
@@ -23,17 +23,19 @@ class _TipsScreenState extends State<TipsScreen> {
         icon: Icons.account_box,
 //        title: TranslatorLoader.translate(context).text("account"),
         title: 'Account',
-        description: "Register account to play the game with your friends. They are simple steps and take you few seconds ^_^ ",
+        description:
+            "Register account to play the game with your friends. They are simple steps and take you few seconds ^_^ ",
       ),
       Tips(
         icon: Icons.info_outline,
         title: "Game info",
-        description: "Player who has 5 sequent items on a line first will be winner.Horizontally, vertically, crossly are accepted as long as you reach 5 sequent items first. You will be winner.\nThere are 2 modes: Single mode and Play with your friends. \nGood luck ^^! ",
+        description:
+            "\tPlayer who reach 5 sequent items first on a line first will be winner.Horizontally, vertically, crossly are accepted as long as you reach 5 sequent items first. You will be winner.\nThere are 2 modes: Single mode and Play with your friends.",
       ),
       Tips(
         icon: Icons.insert_emoticon,
         title: "Thanks a lot!!!",
-        description: "Thanks for reading.\n Enjoin ^^! !!! ",
+        description: "Thanks for reading.\n Enjoin ^^!",
       ),
     ];
     return Scaffold(
@@ -74,36 +76,50 @@ class _TipsScreenState extends State<TipsScreen> {
                 color: Colors.blueAccent,
               ),
             ),
-            Column(
-              children: <Widget>[
-                Center(
-                  child: Text(
-                    page.title,
-                    softWrap: true,
-                    textAlign: TextAlign.center,
+            Column(children: <Widget>[
+              Center(
+                child: Text(
+                  page.title,
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: Colors.white,
+                      decoration: TextDecoration.none,
+                      fontSize: 40,
+                      fontWeight: FontWeight.w300,
+                      fontFamily: "OpenSans"),
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Align(
+                child: RichText(
+                  text: TextSpan(
+                    text: page.description,
                     style: TextStyle(
                         color: Colors.white,
                         decoration: TextDecoration.none,
                         fontSize: 25,
                         fontWeight: FontWeight.w300,
                         fontFamily: "OpenSans"),
-                  ),
-                ),SizedBox(height: 50,),
-                Align(
-                  child: Text(
-                    page.description,
-                    softWrap: true,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.white,
-                        decoration: TextDecoration.none,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w300,
-                        fontFamily: "OpenSans"),
+                    children: <TextSpan>[
+                    ],
                   ),
                 ),
-              ]
-            ),
+
+//                    page.description,
+//                    softWrap: true,
+//                    textAlign: TextAlign.left,
+//                    style: TextStyle(
+//                        color: Colors.white,
+//                        decoration: TextDecoration.none,
+//                        fontSize: 15,
+//                        fontWeight: FontWeight.w300,
+//                        fontFamily: "OpenSans"),
+//                  ),
+              ),
+            ]),
             Padding(
               padding: const EdgeInsets.all(10),
               child: page.extraWidget,

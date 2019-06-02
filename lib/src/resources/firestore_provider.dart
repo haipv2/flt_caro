@@ -1,6 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flt_caro/src/models/user.dart';
-import 'package:flt_caro/src/models/user_push.dart';
+import 'package:ticcar5/src/models/user.dart';
+import 'package:ticcar5/src/models/user_push.dart';
 
 import '../common/common.dart';
 

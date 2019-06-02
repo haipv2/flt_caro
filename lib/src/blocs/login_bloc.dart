@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flt_caro/src/models/user.dart';
-import 'package:flt_caro/src/resources/repository.dart';
-import 'package:flt_caro/src/utils/validator_utils.dart';
+import 'package:ticcar5/src/models/user.dart';
+import 'package:ticcar5/src/resources/repository.dart';
+import 'package:ticcar5/src/utils/validator_utils.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

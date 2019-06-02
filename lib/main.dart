@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:flt_caro/src/blocs/login_bloc_provider.dart';
-import 'package:flt_caro/src/common/common.dart';
-import 'package:flt_caro/src/models/user.dart';
-import 'package:flt_caro/src/ui/login_page.dart';
-import 'package:flt_caro/src/ui/my_page.dart';
+import 'package:ticcar5/src/blocs/login_bloc_provider.dart';
+import 'package:ticcar5/src/common/common.dart';
+import 'package:ticcar5/src/models/user.dart';
+import 'package:ticcar5/src/ui/login_page.dart';
+import 'package:ticcar5/src/ui/my_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

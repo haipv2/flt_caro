@@ -1,4 +1,4 @@
-import 'package:flt_caro/src/models/user.dart';
+import 'package:ticcar5/src/models/user.dart';
 import 'package:flutter/material.dart';
 
 import 'my_page.dart';

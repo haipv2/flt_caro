@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:flt_caro/src/common/common.dart';
-import 'package:flt_caro/src/models/user.dart';
+import 'package:ticcar5/src/common/common.dart';
+import 'package:ticcar5/src/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesUtils {

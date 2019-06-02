@@ -1,6 +1,6 @@
 
-import 'package:flt_caro/src/models/user.dart';
-import 'package:flt_caro/src/resources/repository.dart';
+import 'package:ticcar5/src/models/user.dart';
+import 'package:ticcar5/src/resources/repository.dart';
 
 class GameBloc{
   final _repository = Repository();

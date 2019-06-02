@@ -1,4 +1,4 @@
-name: flt_caro
+name: ticcar5
 description: A new Flutter application.
 
 # The following defines the version and build number for your application.
@@ -30,6 +30,10 @@ dependencies:
   cupertino_icons: ^0.1.2
   rxdart: ^0.21.0
 #  firebase_admob: ^0.8.0+4
+#  firebase_admob: ^0.9.0+1
+
+#  admob_flutter: ^0.3.1
+
   #  firebase_ml_vision: ^0.7.0
   #  image_picker: ^0.6.0+2
   #  google_sign_in: ^4.0.1+3
@@ -40,12 +44,15 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-
+#  flutter_launcher_icons: ^0.7.2
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 
 # The following section is specific to Flutter.
+#  flutter_icons:
+#    android: "launcher_icon"
+#    ios: true
+#    image_path: "assets/images/icon.png"
 flutter:
 
   # The following line ensures that the Material Icons font is
@@ -59,9 +66,9 @@ flutter:
       - assets/images/first.gif
       - assets/images/second.gif
       - assets/images/surrender.gif
-      - assets/images/emotion.png
       - assets/images/letsgo.gif
       - assets/images/bg.jpeg
+      - assets/images/icon.png
   fonts:
     - family: indie flower
       fonts:

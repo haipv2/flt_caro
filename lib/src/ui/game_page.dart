@@ -4,10 +4,10 @@ import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flt_caro/src/blocs/game_bloc.dart';
-import 'package:flt_caro/src/common/common.dart';
-import 'package:flt_caro/src/models/user.dart';
 import 'package:flutter/material.dart';
+import 'package:ticcar5/src/blocs/game_bloc.dart';
+import 'package:ticcar5/src/common/common.dart';
+import 'package:ticcar5/src/models/user.dart';
 
 import '../common/game_enums.dart';
 import 'fighting_bar.dart';
@@ -73,6 +73,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         vsync: this, duration: Duration(milliseconds: 1500));
     _dialogAnimation = Tween(begin: -1.0, end: 0.0).animate(
         CurvedAnimation(parent: _dialogController, curve: Curves.elasticOut));
+    _dialogController.forward();
     _bloc = new GameBloc();
     if (widget.gameMode == GameMode.friends) {
       FirebaseDatabase.instance
@@ -111,13 +112,15 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
           var titleDialogLoser = "OPPS!!! You losed ";
 
           if (widget.player1.loginId == loser.loginId) {
-            setState(() {
-              if (loser.loginId == widget.player1.loginId) {
-                player2Score += 1;
-              } else {
-                player1Score += 1;
-              }
-            });
+//            if(mounted) {
+//              setState(() {
+//                if (loser.loginId == widget.player1.loginId) {
+//                  player2Score += 1;
+//                } else {
+//                  player1Score += 1;
+//                }
+//              });
+//            }
 
             showDialog(
                 context: context,
@@ -382,6 +385,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       String winner;
       if (player1List.length > 4 || player2List.length > 4) {
         winner = checkWinner(cellNumber);
+        resetGame(winner);
       }
 //      if (winner == null) {
 //        if (itemlist.every((p) => p.child.text != "")) {
@@ -405,6 +409,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     String winner;
     player1List.sort((i1, i2) => i1 - i2);
     player2List.sort((i1, i2) => i1 - i2);
+
     //check user 1 win
     if (widget.gameMode == GameMode.friends) {
       if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
@@ -421,20 +426,24 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         winner = doReferee(player2List, activePlayer, id);
       }
     }
-
     if (winner != null) {
-      if (winner == PLAYER_SEND_REQ_SCREEN) {
-        setState(() {
-          player1Score += 1;
-        });
-      } else {
-        setState(() {
-          player2Score += 1;
-        });
-      }
+      setState(() {
+        if (winner == PLAYER_SEND_REQ_SCREEN) {
+          if (widget.gameMode == GameMode.single) {
+            player2Score += 1;
+          } else {
+            player1Score += 1;
+          }
+        } else {
+          if (widget.gameMode == GameMode.single) {
+            player1Score += 1;
+          } else {
+            player2Score += 1;
+          }
+        }
+      });
       resetGame(winner);
     }
-
     return winner;
   }
 

@@ -1,5 +1,5 @@
-import 'package:flt_caro/src/ui/game_dialog_animation.dart';
-import 'package:flt_caro/src/ui/game_dialog_winner.dart';
+import 'package:ticcar5/src/ui/game_dialog_animation.dart';
+import 'package:ticcar5/src/ui/game_dialog_winner.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(TestPage());

@@ -1,7 +1,7 @@
-import 'package:flt_caro/src/blocs/signup_bloc.dart';
-import 'package:flt_caro/src/common/common.dart';
-import 'package:flt_caro/src/ui/login_page.dart';
-import 'package:flt_caro/src/ui/widgets/custom_flat_button.dart';
+import 'package:ticcar5/src/blocs/signup_bloc.dart';
+import 'package:ticcar5/src/common/common.dart';
+import 'package:ticcar5/src/ui/login_page.dart';
+import 'package:ticcar5/src/ui/widgets/custom_flat_button.dart';
 import 'package:flutter/material.dart';
 
 import 'my_page.dart';

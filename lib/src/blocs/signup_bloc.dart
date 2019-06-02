@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flt_caro/src/common/common.dart';
-import 'package:flt_caro/src/models/user.dart';
-import 'package:flt_caro/src/models/user_push.dart';
-import 'package:flt_caro/src/resources/repository.dart';
-import 'package:flt_caro/src/utils/shared_preferences_utils.dart';
-import 'package:flt_caro/src/utils/validator_utils.dart';
+import 'package:ticcar5/src/common/common.dart';
+import 'package:ticcar5/src/models/user.dart';
+import 'package:ticcar5/src/models/user_push.dart';
+import 'package:ticcar5/src/resources/repository.dart';
+import 'package:ticcar5/src/utils/shared_preferences_utils.dart';
+import 'package:ticcar5/src/utils/validator_utils.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SignupBloc extends Object {
