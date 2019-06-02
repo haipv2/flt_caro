@@ -18,6 +18,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common/game_enums.dart';
+import 'game_dialog_animation.dart';
+import 'game_dialog_loser.dart';
 import 'user_info_page.dart' as userInfo;
 
 class MyPage extends StatefulWidget {
@@ -31,6 +33,7 @@ class MyPage extends StatefulWidget {
 
 class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   final FirebaseMessaging firebaseMessaging = FirebaseMessaging();
+
 //  final GoogleSignIn _googleSignIn = GoogleSignIn();
 //  final FirebaseAuth _auth = FirebaseAuth.instance;
   AnimationController _controller;
@@ -38,15 +41,23 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   Animation _lateAnimationMenu;
   AnimataionCommonStatus animataionCommonStatus;
   MyPageBloc _bloc;
+  AnimationController _dialogController;
+  Animation<double> _dialogAnimation;
 
   @override
   void dispose() {
     _controller.dispose();
+    _dialogController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
+    _dialogController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 1500));
+    _dialogAnimation = Tween(begin: -1.0, end: 0.0).animate(
+        CurvedAnimation(parent: _dialogController, curve: Curves.elasticOut));
+    _dialogController.forward();
     _bloc = new MyPageBloc();
     super.initState();
     _controller =
@@ -128,22 +139,19 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   Widget buildDialog(BuildContext context, Map<String, dynamic> message) {
     var fromName = getValueFromMapData(message, 'fromName');
 
-    return AlertDialog(
-      content: Text('$fromName invites you to play!'),
-      actions: <Widget>[
-        FlatButton(
-          child: Text('Decline'),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        FlatButton(
-          child: Text('Play'),
-          onPressed: () {
-            accept(message);
-          },
-        ),
-      ],
+    return GameDialogAnimate(
+      animation: _dialogAnimation,
+      child: GameDialogLoser(
+        widget.user,
+        'Hey! Are you free ',
+        '$fromName invites you to play!',
+        () {
+          Navigator.pop(context);
+        },
+        () {
+          accept(message);
+        },
+      ),
     );
   }
 
@@ -169,7 +177,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   void updateFcmToken() async {
     var pushId = await firebaseMessaging.getToken();
 //    var listPushId =
-        _bloc.getListPushId(widget.user.loginId).then((listPushId) {
+    _bloc.getListPushId(widget.user.loginId).then((listPushId) {
       SharedPreferencesUtils.setStringToPreferens(PUSH_ID, pushId);
       if (!listPushId.contains(pushId)) {
         listPushId.add(pushId);
@@ -296,27 +304,32 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
         return Scaffold(
           appBar: AppBar(
             title: Text(
-              'CARO GAME',
+              GAME_NAME,
               style: TextStyle(fontFamily: 'indie flower'),
             ),
           ),
           drawer: myPageDrawer(),
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              singleMode(),
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
-              ),
-              playWithFriend(),
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
-              ),
-              quit(),
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
-              )
-            ],
+          body: Container(
+            decoration: BoxDecoration(
+                image:
+                    DecorationImage(image: AssetImage('assets/images/bg.jpeg'), fit: BoxFit.cover)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                singleMode(),
+                Container(
+                  margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
+                ),
+                playWithFriend(),
+                Container(
+                  margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
+                ),
+                quit(),
+                Container(
+                  margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
+                )
+              ],
+            ),
           ),
         );
       },
@@ -357,7 +370,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
                 onTap: () {
                   Navigator.of(context)
                       .push(MaterialPageRoute(builder: (context) {
-                    return userInfo.UserInfo(widget.user,imageUrl);
+                    return userInfo.UserInfo(widget.user, imageUrl);
                   }));
                 },
               ),

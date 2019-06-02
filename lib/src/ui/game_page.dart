@@ -14,6 +14,7 @@ import 'fighting_bar.dart';
 import 'game_dialog_animation.dart';
 import 'game_dialog_loser.dart';
 import 'game_dialog_surrender.dart';
+import 'game_dialog_surrender_single.dart';
 import 'game_dialog_winner.dart';
 import 'game_item.dart';
 import 'game_item_animation.dart';
@@ -85,7 +86,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         if (key == SURRENDER) {
           String titleSurrenderDialog = 'Congrats!!';
           String contentSurrenderDlg =
-              'WOW... you are so powerful. Your oponent already surrender. You win ^_^';
+              'WOW... you are so powerful. Your oponent already surrendered. You win ^_^';
           var value = event.snapshot.value;
           User surrenderer = User.fromJson(json.decode(value));
           if (widget.player1.loginId != surrenderer.loginId) {
@@ -127,6 +128,12 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                       loser,
                       titleDialogLoser,
                       contentDialogLoser,
+                      () {
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) => MyPage(
+                                  loser,
+                                )));
+                      },
                       () {
                         Navigator.of(context).pushReplacement(MaterialPageRoute(
                             builder: (context) => UserList(
@@ -381,14 +388,14 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 //          resetGame(winner);
 //        }
 //      } else {
-        if (widget.gameMode == GameMode.single) {
-          int timeForAi = 50 + Random().nextInt(250);
-          print('Time for AI: $timeForAi');
-          Timer(Duration(milliseconds: timeForAi), () {
-            activePlayer == PLAYER_RECEIVE_REQ_SCREEN
-                ? autoPlay(cellNumber)
-                : null;
-          });
+      if (widget.gameMode == GameMode.single) {
+        int timeForAi = 50 + Random().nextInt(250);
+        print('Time for AI: $timeForAi');
+        Timer(Duration(milliseconds: timeForAi), () {
+          activePlayer == PLAYER_RECEIVE_REQ_SCREEN
+              ? autoPlay(cellNumber)
+              : null;
+        });
 //        }
       }
     });
@@ -399,11 +406,20 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     player1List.sort((i1, i2) => i1 - i2);
     player2List.sort((i1, i2) => i1 - i2);
     //check user 1 win
-    if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
-      winner = doReferee(player1List, activePlayer, id);
-    } else {
-      //check user 2 win
-      winner = doReferee(player2List, activePlayer, id);
+    if (widget.gameMode == GameMode.friends) {
+      if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
+        winner = doReferee(player2List, activePlayer, id);
+      } else {
+        //check user 2 win
+        winner = doReferee(player1List, activePlayer, id);
+      }
+    } else if (widget.gameMode == GameMode.single) {
+      if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
+        winner = doReferee(player1List, activePlayer, id);
+      } else {
+        //check user 2 win
+        winner = doReferee(player2List, activePlayer, id);
+      }
     }
 
     if (winner != null) {
@@ -573,26 +589,10 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       builder: (context) {
         return GameDialogAnimate(
           animation: _dialogAnimation,
-          child: AlertDialog(
-            content: Text('Do you surrender in this game ?'),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('Not'),
-                onPressed: () {
-                  Navigator.of(context).pop(CANCEL);
-                },
-              ),
-              FlatButton(
-                child: Text('Yes'),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, MYPAGE);
-                  if (widget.gameMode == GameMode.friends) {
-                    _bloc.cleanGame(widget.gameId);
-                    sendSurrenderReq();
-                  }
-                },
-              ),
-            ],
+          child: GameDialogSurrenderSingle(
+            widget.player1,
+            'OPPS!!!',
+            'Do you surrender easily ?',
           ),
         );
       },

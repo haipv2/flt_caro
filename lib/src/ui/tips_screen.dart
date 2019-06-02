@@ -23,17 +23,17 @@ class _TipsScreenState extends State<TipsScreen> {
         icon: Icons.account_box,
 //        title: TranslatorLoader.translate(context).text("account"),
         title: 'Account',
-        description: "Register account to play the game with your friends. ",
+        description: "Register account to play the game with your friends. They are simple steps and take you few seconds ^_^ ",
       ),
       Tips(
         icon: Icons.info_outline,
-        title: "Your account",
-        description: "Register account to play the game with your friends. ",
+        title: "Game info",
+        description: "Player who has 5 sequent items on a line first will be winner.Horizontally, vertically, crossly are accepted as long as you reach 5 sequent items first. You will be winner.\nThere are 2 modes: Single mode and Play with your friends. \nGood luck ^^! ",
       ),
       Tips(
         icon: Icons.insert_emoticon,
         title: "Thanks a lot!!!",
-        description: "Thanks for reading. Enjoin!!! ",
+        description: "Thanks for reading.\n Enjoin ^^! !!! ",
       ),
     ];
     return Scaffold(
@@ -50,8 +50,8 @@ class _TipsScreenState extends State<TipsScreen> {
               activeSize: 8.0),
         ),
         control: SwiperControl(
-          iconPrevious: null,
-          iconNext: null,
+          iconPrevious: Icons.arrow_back,
+          iconNext: Icons.arrow_forward,
         ),
         children: _getPages(context, tipsPage, widget.prefs),
       ),
@@ -74,19 +74,35 @@ class _TipsScreenState extends State<TipsScreen> {
                 color: Colors.blueAccent,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 50, right: 50, left: 15),
-              child: Text(
-                page.title,
-                softWrap: true,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: Colors.white,
-                    decoration: TextDecoration.none,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w300,
-                    fontFamily: "OpenSans"),
-              ),
+            Column(
+              children: <Widget>[
+                Center(
+                  child: Text(
+                    page.title,
+                    softWrap: true,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.white,
+                        decoration: TextDecoration.none,
+                        fontSize: 25,
+                        fontWeight: FontWeight.w300,
+                        fontFamily: "OpenSans"),
+                  ),
+                ),SizedBox(height: 50,),
+                Align(
+                  child: Text(
+                    page.description,
+                    softWrap: true,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.white,
+                        decoration: TextDecoration.none,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        fontFamily: "OpenSans"),
+                  ),
+                ),
+              ]
             ),
             Padding(
               padding: const EdgeInsets.all(10),
@@ -97,7 +113,7 @@ class _TipsScreenState extends State<TipsScreen> {
       ));
     }
     widgets.add(Container(
-//      color: Colors.lime,
+      color: Colors.lime,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -120,7 +136,7 @@ class _TipsScreenState extends State<TipsScreen> {
                     setState(() {
                       prefs.setBool('seen', true);
                     });
-                    Navigator.of(context).pushReplacementNamed(MYPAGE);
+                    Navigator.of(context).pushReplacementNamed(LOGIN_PAGE);
                   },
                   splashColor: Colors.black12,
                   borderColor: Colors.white,

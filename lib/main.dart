@@ -54,6 +54,7 @@ class _MyAppState extends State<MyApp> {
         home: _scaffold(),
         routes: <String, WidgetBuilder>{
           MYPAGE: (BuildContext context) => MyPage(widget.user),
+          LOGIN_PAGE: (BuildContext context) => Loginpage(),
         },
       ),
     );

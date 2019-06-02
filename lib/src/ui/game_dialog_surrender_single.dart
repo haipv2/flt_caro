@@ -1,17 +1,17 @@
 import 'package:flt_caro/src/models/user.dart';
 import 'package:flutter/material.dart';
 
-class GameDialogLoser extends StatelessWidget {
+import 'my_page.dart';
+
+class GameDialogSurrenderSingle extends StatelessWidget {
   final title;
   final content;
-  final VoidCallback callbackQuit;
-  final VoidCallback callbackFind;
-  final actionTextQuit;
-  final actionTextFind;
+  final actionTextYes;
+  final actionTextNo;
   final User player;
 
-  GameDialogLoser(this.player, this.title, this.content, this.callbackQuit,this.callbackFind,
-      [this.actionTextQuit = "Quit",this.actionTextFind = "Find"]);
+  GameDialogSurrenderSingle(this.player, this.title, this.content,
+      [this.actionTextYes = 'Yes', this.actionTextNo = 'No']);
 
   @override
   Widget build(BuildContext context) {
@@ -71,15 +71,19 @@ class GameDialogLoser extends StatelessWidget {
                           bottomLeft: Radius.circular(15),
                           bottomRight: Radius.circular(15))),
                   child: Align(
-                    alignment: Alignment.bottomRight,
+                    alignment: Alignment.topRight,
                     child: Stack(children: <Widget>[
                       Positioned(
                         right: 55,
                         top: 5,
                         child: GestureDetector(
-                          onTap: callbackQuit,
+                          onTap: () {
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => MyPage(player)));
+                          },
                           child: Text(
-                            actionTextQuit,
+                            actionTextYes,
                             style: TextStyle(
                                 fontStyle: FontStyle.italic,
                                 decoration: TextDecoration.underline),
@@ -90,9 +94,11 @@ class GameDialogLoser extends StatelessWidget {
                         right: 10,
                         top: 5,
                         child: GestureDetector(
-                          onTap: callbackFind,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                          },
                           child: Text(
-                            actionTextFind,
+                            actionTextNo,
                             style: TextStyle(
                                 fontStyle: FontStyle.italic,
                                 decoration: TextDecoration.underline),
@@ -108,6 +114,5 @@ class GameDialogLoser extends StatelessWidget {
         );
       }),
     );
-
   }
 }
