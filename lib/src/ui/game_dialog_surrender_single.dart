@@ -7,10 +7,11 @@ class GameDialogSurrenderSingle extends StatelessWidget {
   final title;
   final content;
   final actionTextYes;
+  final VoidCallback surrenderNo;
+  final VoidCallback surrenderYes;
   final actionTextNo;
-  final User player;
 
-  GameDialogSurrenderSingle(this.player, this.title, this.content,
+  GameDialogSurrenderSingle(this.title, this.content, this.surrenderYes, this.surrenderNo,
       [this.actionTextYes = 'Yes', this.actionTextNo = 'No']);
 
   @override
@@ -77,11 +78,7 @@ class GameDialogSurrenderSingle extends StatelessWidget {
                         right: 55,
                         top: 5,
                         child: GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                    builder: (context) => MyPage(player)));
-                          },
+                          onTap:surrenderNo,
                           child: Text(
                             actionTextYes,
                             style: TextStyle(
@@ -94,9 +91,7 @@ class GameDialogSurrenderSingle extends StatelessWidget {
                         right: 10,
                         top: 5,
                         child: GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).pop();
-                          },
+                          onTap: surrenderYes,
                           child: Text(
                             actionTextNo,
                             style: TextStyle(
