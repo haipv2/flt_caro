@@ -72,8 +72,12 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     _dialogController = AnimationController(
         vsync: this, duration: Duration(milliseconds: 1500));
     _dialogAnimation = Tween(begin: -1.0, end: 0.0).animate(
-        CurvedAnimation(parent: _dialogController, curve: Curves.elasticOut));
-    _dialogController.forward();
+        CurvedAnimation(parent: _dialogController, curve: Curves.elasticOut))..addStatusListener((status){
+          if (status == AnimationStatus.completed){
+//            _dialogController.reset();
+          }
+
+    });
     _bloc = new GameBloc();
     if (widget.gameMode == GameMode.friends) {
       FirebaseDatabase.instance
@@ -385,6 +389,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       String winner;
       if (player1List.length > 4 || player2List.length > 4) {
         winner = checkWinner(cellNumber);
+      }
+      if (winner != null) {
         resetGame(winner);
       }
 //      if (winner == null) {
@@ -599,10 +605,19 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         return GameDialogAnimate(
           animation: _dialogAnimation,
           child: GameDialogSurrenderSingle(
-            widget.player1,
-            'OPPS!!!',
-            'Do you surrender easily ?',
-          ),
+              'OPPS!!!', 'Do you surrender easily ?', () {
+            Navigator.of(context).pop();
+          }, () {
+            Navigator.of(context)
+                .pushReplacement(MaterialPageRoute(builder: (context) {
+              if (widget.gameMode == GameMode.friends) {
+                _bloc.cleanGame(widget.gameId);
+                sendSurrenderReq();
+              return MyPage(widget.player1);
+
+              }
+            }));
+          }),
         );
       },
     );

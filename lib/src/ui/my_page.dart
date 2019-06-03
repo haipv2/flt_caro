@@ -56,8 +56,12 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     _dialogController = AnimationController(
         vsync: this, duration: Duration(milliseconds: 1500));
     _dialogAnimation = Tween(begin: -1.0, end: 0.0).animate(
-        CurvedAnimation(parent: _dialogController, curve: Curves.elasticOut));
-    _dialogController.forward();
+        CurvedAnimation(parent: _dialogController, curve: Curves.elasticOut))
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+//          _dialogController.reset();
+        }
+      });
     _bloc = new MyPageBloc();
     super.initState();
     _controller =
@@ -127,7 +131,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
 
   void showInvitePopup(BuildContext context, Map<String, dynamic> message) {
     print(context == null);
-
+    _dialogController.forward();
     Timer(Duration(milliseconds: 200), () {
       showDialog<bool>(
         context: context,
@@ -142,16 +146,12 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     return GameDialogAnimate(
       animation: _dialogAnimation,
       child: GameDialogLoser(
-        widget.user,
-        'Hey! Are you free ',
-        '$fromName invites you to play!',
-        () {
-          Navigator.pop(context);
-        },
-        () {
-          accept(message);
-        },'NO','PLAY'
-      ),
+          widget.user, 'Hey! Are you free ', '$fromName invites you to play!',
+          () {
+        Navigator.pop(context);
+      }, () {
+        accept(message);
+      }, 'NO', 'PLAY'),
     );
   }
 
@@ -311,8 +311,9 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
           drawer: myPageDrawer(),
           body: Container(
             decoration: BoxDecoration(
-                image:
-                    DecorationImage(image: AssetImage('assets/images/bg.jpeg'), fit: BoxFit.cover)),
+                image: DecorationImage(
+                    image: AssetImage('assets/images/bg.jpeg'),
+                    fit: BoxFit.cover)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
