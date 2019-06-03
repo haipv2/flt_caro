@@ -27,8 +27,10 @@ dependencies:
   english_words: ^3.1.0
   auto_size_text: ^1.1.2
   flutter_swiper: ^1.1.6
-  cupertino_icons: ^0.1.2
+  #cupertino_icons: ^0.1.2
   rxdart: ^0.21.0
+  firebase_admob: 0.8.0+4
+
 #  firebase_admob: ^0.8.0+4
 #  firebase_admob: ^0.9.0+1
 
@@ -44,15 +46,16 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-#  flutter_launcher_icons: ^0.7.2
+  flutter_launcher_icons: ^0.7.2
+flutter_icons:
+  image_path: "icon/icon.png"
+  android: true
+  ios: true
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 
 # The following section is specific to Flutter.
-#  flutter_icons:
-#    android: "launcher_icon"
-#    ios: true
-#    image_path: "assets/images/icon.png"
+
 flutter:
 
   # The following line ensures that the Material Icons font is
@@ -68,7 +71,8 @@ flutter:
       - assets/images/surrender.gif
       - assets/images/letsgo.gif
       - assets/images/bg.jpeg
-      - assets/images/icon.png
+      - assets/images/bg_userInfo.jpg
+      - assets/images/bg_friends.jpg
   fonts:
     - family: indie flower
       fonts:

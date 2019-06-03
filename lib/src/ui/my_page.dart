@@ -21,6 +21,7 @@ import '../common/game_enums.dart';
 import 'game_dialog_animation.dart';
 import 'game_dialog_loser.dart';
 import 'user_info_page.dart' as userInfo;
+import 'package:firebase_admob/firebase_admob.dart';
 
 class MyPage extends StatefulWidget {
   final User user;
@@ -137,8 +138,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
         context: context,
         builder: (_) => buildDialog(context, message),
       );
-    });
-  }
+    });}
 
   Widget buildDialog(BuildContext context, Map<String, dynamic> message) {
     var fromName = getValueFromMapData(message, 'fromName');
@@ -192,6 +192,9 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseAdMob.instance.initialize(appId: 'ca-app-pub-4625968058800017~1707037686').then((res){
+      myBanner..load()..show();
+    });
     double width = MediaQuery.of(context).size.width;
     _controller.forward();
     var aiName2 = '${WordPair.random()} ${WordPair.random()}';
@@ -345,48 +348,48 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     return SizedBox(
       width: size.width * 3 / 4,
       child: Drawer(
-          // Add a ListView to the drawer. This ensures the user can scroll
-          // through the options in the Drawer if there isn't enough vertical
-          // space to fit everything.
           elevation: 2,
-          child: Column(
-            children: <Widget>[
-              UserAccountsDrawerHeader(
-                accountName: Text(widget.user.firstname),
-                accountEmail: Text(widget.user.email),
-                currentAccountPicture: Hero(
-                  tag: USER_AVA_TAG,
-                  child: CircleAvatar(
-                    child: Image.asset(imageUrl),
-                    backgroundColor: Colors.white,
+          child: Container(
+            color: Colors.amber,
+            child: Column(
+              children: <Widget>[
+                UserAccountsDrawerHeader(
+                  accountName: Text(widget.user.firstname),
+                  accountEmail: Text(widget.user.email),
+                  currentAccountPicture: Hero(
+                    tag: USER_AVA_TAG,
+                    child: CircleAvatar(
+                      child: Image.asset(imageUrl),
+                      backgroundColor: Colors.white,
+                    ),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
                   ),
                 ),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
+                ListTile(
+                  leading: const Icon(Icons.account_circle),
+                  title: Text('User\'s info'),
+                  onTap: () {
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      return userInfo.UserInfo(widget.user, imageUrl);
+                    }));
+                  },
                 ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.account_circle),
-                title: Text('User\'s info'),
-                onTap: () {
-                  Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (context) {
-                    return userInfo.UserInfo(widget.user, imageUrl);
-                  }));
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.exit_to_app),
-                title: Text('Logout'),
-                onTap: () {
-                  Navigator.of(context)
-                      .pushReplacement(MaterialPageRoute(builder: (context) {
-                    removeUserInfo();
-                    return Loginpage();
-                  }));
-                },
-              ),
-            ],
+                ListTile(
+                  leading: const Icon(Icons.exit_to_app),
+                  title: Text('Logout'),
+                  onTap: () {
+                    Navigator.of(context)
+                        .pushReplacement(MaterialPageRoute(builder: (context) {
+                      removeUserInfo();
+                      return Loginpage();
+                    }));
+                  },
+                ),
+              ],
+            ),
           )),
     );
   }
@@ -404,3 +407,22 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     prefs.remove(USER_PREFS_KEY);
   }
 }
+
+MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
+  keywords: <String>['flutterio', 'beautiful apps'],
+  contentUrl: 'https://flutter.io',
+  childDirected: false,
+  testDevices: <String>[], // Android emulators are considered test devices
+);
+
+BannerAd myBanner = BannerAd(
+  // Replace the testAdUnitId with an ad unit id from the AdMob dash.
+  // https://developers.google.com/admob/android/test-ads
+  // https://developers.google.com/admob/ios/test-ads
+  adUnitId: 'ca-app-pub-4625968058800017/6523362043',
+  size: AdSize.smartBanner,
+  targetingInfo: targetingInfo,
+  listener: (MobileAdEvent event) {
+    print("BannerAd event is $event");
+  },
+);

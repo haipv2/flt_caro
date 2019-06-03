@@ -34,12 +34,18 @@ class _UserListState extends State<UserList> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: ListView.separated(
-          separatorBuilder: (context, index) => Divider(
-                color: Colors.black,
-              ),
-          itemCount: _users.length,
-          itemBuilder: (context, index) => buildListRow(context, index)),
+      body: Container(
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('assets/images/bg_friends.jpeg'),
+                fit: BoxFit.cover)),
+        child: ListView.separated(
+            separatorBuilder: (context, index) => Divider(
+                  color: Colors.black,
+                ),
+            itemCount: _users.length,
+            itemBuilder: (context, index) => buildListRow(context, index)),
+      ),
     );
   }
 
