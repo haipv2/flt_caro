@@ -138,7 +138,8 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
         context: context,
         builder: (_) => buildDialog(context, message),
       );
-    });}
+    });
+  }
 
   Widget buildDialog(BuildContext context, Map<String, dynamic> message) {
     var fromName = getValueFromMapData(message, 'fromName');
@@ -192,8 +193,12 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    FirebaseAdMob.instance.initialize(appId: 'ca-app-pub-4625968058800017~1707037686').then((res){
-      myBanner..load()..show();
+    FirebaseAdMob.instance
+        .initialize(appId: 'ca-app-pub-4625968058800017~1707037686')
+        .then((res) {
+      myBanner
+        ..load()
+        ..show();
     });
     double width = MediaQuery.of(context).size.width;
     _controller.forward();
@@ -350,7 +355,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
       child: Drawer(
           elevation: 2,
           child: Container(
-            color: Colors.amber,
+            color: const Color(0xffF3E2A9),
             child: Column(
               children: <Widget>[
                 UserAccountsDrawerHeader(
@@ -416,11 +421,8 @@ MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
 );
 
 BannerAd myBanner = BannerAd(
-  // Replace the testAdUnitId with an ad unit id from the AdMob dash.
-  // https://developers.google.com/admob/android/test-ads
-  // https://developers.google.com/admob/ios/test-ads
   adUnitId: 'ca-app-pub-4625968058800017/6523362043',
-  size: AdSize.smartBanner,
+  size: AdSize.banner,
   targetingInfo: targetingInfo,
   listener: (MobileAdEvent event) {
     print("BannerAd event is $event");

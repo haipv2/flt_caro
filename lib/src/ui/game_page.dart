@@ -277,8 +277,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                     ],
                   ),
                 ),
-                scoreSection(),
                 surrenderSection(),
+                scoreSection(),
               ],
             ),
             FightingBar(
@@ -390,9 +390,10 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       if (player1List.length > 4 || player2List.length > 4) {
         winner = checkWinner(cellNumber);
       }
-//      if (winner != null) {
-//        resetGame(winner);
-//      }
+      if (winner != null) {
+        resetGame(winner);
+        return;
+      }
 //      if (winner == null) {
 //        if (itemlist.every((p) => p.child.text != "")) {
 //          resetGame(winner);
@@ -448,7 +449,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
           }
         }
       });
-      resetGame(winner);
+//      resetGame(winner);
     }
     return winner;
   }
@@ -517,6 +518,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     }
 
 //    var list = new List.generate(SUM, (i) => i + 1);
+
     var tempList = List.from(aroundCell);
     for (var cellId in tempList) {
       if (player1List.contains(cellId)) {
