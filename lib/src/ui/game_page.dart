@@ -72,12 +72,12 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     _dialogController = AnimationController(
         vsync: this, duration: Duration(milliseconds: 1500));
     _dialogAnimation = Tween(begin: -1.0, end: 0.0).animate(
-        CurvedAnimation(parent: _dialogController, curve: Curves.elasticOut))..addStatusListener((status){
-          if (status == AnimationStatus.completed){
+        CurvedAnimation(parent: _dialogController, curve: Curves.elasticOut))
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
 //            _dialogController.reset();
-          }
-
-    });
+        }
+      });
     _bloc = new GameBloc();
     if (widget.gameMode == GameMode.friends) {
       FirebaseDatabase.instance
@@ -90,9 +90,9 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         _dialogController.forward();
         print('----------$key');
         if (key == SURRENDER) {
-          String titleSurrenderDialog = 'Congrats!!';
+          String titleSurrenderDialog = 'OPPS!!';
           String contentSurrenderDlg =
-              'WOW... you are so powerful. Your oponent already surrendered. You win ^_^';
+              'You\'re so powerful. Your friend already surrendered LOL';
           var value = event.snapshot.value;
           User surrenderer = User.fromJson(json.decode(value));
           if (widget.player1.loginId != surrenderer.loginId) {
@@ -110,22 +110,21 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                 });
           }
         } else if (key == WINNER) {
-          String contentDialogLoser =
-              'Let\'s invite your openent to play again';
+          String contentDialogLoser = 'Let\'s invite your friend to play again';
           var value = event.snapshot.value;
           User loser = User.fromJson(json.decode(value));
           var titleDialogLoser = "OPPS!!! You losed ";
 
           if (widget.player1.loginId == loser.loginId) {
-//            if(mounted) {
-//              setState(() {
-//                if (loser.loginId == widget.player1.loginId) {
-//                  player2Score += 1;
-//                } else {
-//                  player1Score += 1;
-//                }
-//              });
-//            }
+            if (mounted) {
+              setState(() {
+                if (loser.loginId == widget.player1.loginId) {
+                  player2Score += 1;
+                } else {
+                  player1Score += 1;
+                }
+              });
+            }
 
             showDialog(
                 context: context,
@@ -137,10 +136,11 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                       titleDialogLoser,
                       contentDialogLoser,
                       () {
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(
-                            builder: (context) => MyPage(
-                                  loser,
-                                )));
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MyPage(loser)),
+                            (Route<dynamic> route) => false);
                       },
                       () {
                         Navigator.of(context).pushReplacement(MaterialPageRoute(
@@ -249,7 +249,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                 ),
                 playerInfo(),
                 Expanded(
-                  flex: 5,
+                  flex: 6,
                   child: Stack(
                     children: <Widget>[
                       new GridView.builder(
@@ -261,8 +261,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                                   mainAxisSpacing: 0.5),
                           itemCount: itemlist.length,
                           itemBuilder: (context, i) => new SizedBox(
-//                        width: 30.0,
-//                        height: 20.0,
                                 child: new RaisedButton(
                                   padding: const EdgeInsets.all(1.0),
                                   onPressed: itemlist[i].child.enabled
@@ -279,6 +277,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                 ),
                 surrenderSection(),
                 scoreSection(),
+                spaceSection(),
               ],
             ),
             FightingBar(
@@ -394,11 +393,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         resetGame(winner);
         return;
       }
-//      if (winner == null) {
-//        if (itemlist.every((p) => p.child.text != "")) {
-//          resetGame(winner);
-//        }
-//      } else {
       if (widget.gameMode == GameMode.single) {
         int timeForAi = 50 + Random().nextInt(250);
         print('Time for AI: $timeForAi');
@@ -435,23 +429,16 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     }
     if (winner != null) {
       setState(() {
-        if (winner == PLAYER_SEND_REQ_SCREEN) {
-          if (widget.gameMode == GameMode.single) {
+        if (widget.gameMode == GameMode.single) {
+          if (winner == PLAYER_SEND_REQ_SCREEN) {
             player2Score += 1;
           } else {
             player1Score += 1;
-          }
-        } else {
-          if (widget.gameMode == GameMode.single) {
-            player1Score += 1;
-          } else {
-            player2Score += 1;
           }
         }
       });
-//      resetGame(winner);
+      return winner;
     }
-    return winner;
   }
 
   void autoPlay(int cellNumber) {
@@ -516,8 +503,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       aroundCell.add(rowBefore - 1);
       aroundCell.add(rowBefore + 1);
     }
-
-//    var list = new List.generate(SUM, (i) => i + 1);
 
     var tempList = List.from(aroundCell);
     for (var cellId in tempList) {
@@ -615,9 +600,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
               if (widget.gameMode == GameMode.friends) {
                 _bloc.cleanGame(widget.gameId);
                 sendSurrenderReq();
-              return MyPage(widget.player1);
-
               }
+              return MyPage(widget.player1);
             }));
           }),
         );
@@ -705,7 +689,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
           flex: 6,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            verticalDirection: VerticalDirection.down,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
                 '${widget.player1.firstname}',
@@ -873,5 +857,14 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
           .child(SURRENDER)
           .set(json.encode(widget.player1));
     }
+  }
+
+  Widget spaceSection() {
+    return Expanded(
+      flex: 1,
+      child: SizedBox(
+        height: 20.0,
+      ),
+    )
   }
 }

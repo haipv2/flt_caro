@@ -8,7 +8,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="flt_caro"
+        android:label="t-caro5"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

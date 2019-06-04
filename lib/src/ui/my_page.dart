@@ -2,8 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:english_words/english_words.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/animation.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticcar5/src/blocs/mypage_bloc.dart';
 import 'package:ticcar5/src/common/common.dart';
 import 'package:ticcar5/src/models/user.dart';
@@ -12,16 +17,11 @@ import 'package:ticcar5/src/ui/login_page.dart';
 import 'package:ticcar5/src/ui/user_list_page.dart';
 import 'package:ticcar5/src/utils/map_utils.dart';
 import 'package:ticcar5/src/utils/shared_preferences_utils.dart';
-import 'package:flutter/animation.dart';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common/game_enums.dart';
 import 'game_dialog_animation.dart';
 import 'game_dialog_loser.dart';
 import 'user_info_page.dart' as userInfo;
-import 'package:firebase_admob/firebase_admob.dart';
 
 class MyPage extends StatefulWidget {
   final User user;
@@ -54,6 +54,19 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    FirebaseAdMob.instance
+        .initialize(appId: 'ca-app-pub-4625968058800017~1707037686')
+        .then((res) {
+      myBanner
+        // typically this happens well before the ad is shown
+        ..load()
+        ..show(
+          // Positions the banner ad 60 pixels from the bottom of the screen
+        anchorOffset: 0.0,
+          // Banner Position
+          anchorType: AnchorType.bottom,
+        );
+    });
     _dialogController = AnimationController(
         vsync: this, duration: Duration(milliseconds: 1500));
     _dialogAnimation = Tween(begin: -1.0, end: 0.0).animate(
@@ -193,13 +206,6 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    FirebaseAdMob.instance
-        .initialize(appId: 'ca-app-pub-4625968058800017~1707037686')
-        .then((res) {
-      myBanner
-        ..load()
-        ..show();
-    });
     double width = MediaQuery.of(context).size.width;
     _controller.forward();
     var aiName2 = '${WordPair.random()} ${WordPair.random()}';

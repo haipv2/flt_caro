@@ -37,8 +37,8 @@ class _UserListState extends State<UserList> {
       body: Container(
         decoration: BoxDecoration(
             image: DecorationImage(
-                image: AssetImage('assets/images/bg_friends.jpeg'),
-                fit: BoxFit.cover)),
+                image: AssetImage('assets/images/bg_friends.jpg'),
+                fit: BoxFit.fill)),
         child: ListView.separated(
             separatorBuilder: (context, index) => Divider(
                   color: Colors.black,
