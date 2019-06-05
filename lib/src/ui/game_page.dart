@@ -20,7 +20,6 @@ import 'game_item.dart';
 import 'game_item_animation.dart';
 import 'my_page.dart';
 import 'user_list_page.dart';
-import 'dart:math';
 
 class Game extends StatefulWidget {
   User player1;
@@ -47,10 +46,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   List<GameItemAnimation> itemlist;
   List<int> player1List;
   List<int> player2List;
-  List<int> player1HozirontalLine = [];
-  List<int> player1verticalLine = [];
-  List<int> player1CrossLeft = [];
-  List<int> player1crossRight = [];
   var activePlayer;
   int player1Score = 0;
   int player2Score = 0;
@@ -380,7 +375,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       if (activePlayer == PLAYER_SEND_REQ_SCREEN) {
         itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
         player1List.add(cellNumber);
-        addLineDirection(cellNumber);
         if (widget.gameMode == GameMode.single) {
           activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
         }
@@ -447,11 +441,13 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     }
   }
 
+  static const multiColRow = COLUMNS * ROWS;
+
   void autoPlay(int cellNumber) {
     var rowBefore = cellNumber - COLUMNS;
     var rowAfter = cellNumber + COLUMNS;
     List aroundCell = [];
-    var multiColRow = COLUMNS * ROWS;
+
     if (cellNumber == 0) {
       aroundCell.add(1);
       aroundCell.add(COLUMNS);
@@ -461,19 +457,13 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       aroundCell.add(COLUMNS * 2);
       aroundCell.add(COLUMNS * 2 - 1);
     } else if (cellNumber == multiColRow - COLUMNS) {
-      aroundCell.add(multiColRow - COLUMNS);
-      aroundCell.add(multiColRow + 1);
-      aroundCell.add(multiColRow - COLUMNS + 1);
-    } else if (cellNumber == multiColRow - 1) {
-      aroundCell.add(multiColRow - COLUMNS);
-      aroundCell.add(multiColRow - 1);
-      aroundCell.add(multiColRow - 1);
-    } else if (cellNumber % COLUMNS == 0) {
-      aroundCell.add(rowBefore);
-      aroundCell.add(rowBefore + 1);
+      aroundCell.add(cellNumber - COLUMNS);
       aroundCell.add(cellNumber + 1);
-      aroundCell.add(rowAfter);
-      aroundCell.add(rowAfter + 1);
+      aroundCell.add(cellNumber - COLUMNS + 1);
+    } else if (cellNumber == multiColRow - 1) {
+      aroundCell.add(multiColRow - COLUMNS - 1);
+      aroundCell.add(multiColRow - 1);
+      aroundCell.add(multiColRow - 1);
     } else if (cellNumber % COLUMNS == 0) {
       aroundCell.add(rowBefore);
       aroundCell.add(rowBefore + 1);
@@ -513,7 +503,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     var tempList = List.from(aroundCell);
     var cellId;
     List<int> listExistPlayer1 = [];
-    List<int> listExistPlayer2 = [];
     for (var cellId in tempList) {
       if (player1List.contains(cellId)) {
         aroundCell.remove(cellId);
@@ -521,16 +510,18 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       }
       if (player2List.contains(cellId)) {
         aroundCell.remove(cellId);
-        listExistPlayer2.add(cellId);
       }
     }
 
     for (var existCellId in listExistPlayer1) {
       cellId = processNextTurn(cellNumber, existCellId);
     }
+    if (player2List.contains(cellId) || player1List.contains(cellId)) {
+      cellId = null;
+    }
 
-    var r = new Random();
     if (cellId == null) {
+      var r = new Random();
       cellId = aroundCell[r.nextInt(aroundCell.length)];
     }
     int i = itemlist.indexWhere((p) => p.child.id == cellId);
@@ -542,27 +533,60 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   String doReferee(List<int> players, String winner, int currentCell) {
     // check vertically
     for (var i = 0; i < players.length; i++) {
-      var player = players[i];
-      var vertically = players.contains(player + COLUMNS) &&
-          players.contains(player + COLUMNS * 2) &&
-          players.contains(player + COLUMNS * 3) &&
-          players.contains(player + COLUMNS * 4);
-      if (vertically) return winner;
-      var horizontally = players.contains(player + 1) &&
-          players.contains(player + 2) &&
-          players.contains(player + 3) &&
-          players.contains(player + 4);
-      if (horizontally) return winner;
-      var crossRight = players.contains(player + COLUMNS * 4 + 4) &&
-          players.contains(player + COLUMNS * 3 + 3) &&
-          players.contains(player + COLUMNS * 2 + 2) &&
-          players.contains(player + COLUMNS + 1);
-      if (crossRight) return winner;
-      var crossLeft = players.contains(player + COLUMNS * 4 - 4) &&
-          players.contains(player + COLUMNS * 3 - 3) &&
-          players.contains(player + COLUMNS * 2 - 2) &&
-          players.contains(player + COLUMNS - 1);
-      if (crossLeft) return winner;
+      var playerMinCell = players[i];
+      var playerMinx4 = playerMinCell + COLUMNS * 4;
+      var vertically = players.contains(playerMinCell + COLUMNS) &&
+          players.contains(playerMinCell + COLUMNS * 2) &&
+          players.contains(playerMinCell + COLUMNS * 3) &&
+          players.contains(playerMinx4);
+      if (vertically) {
+        var boundLeftRight = player2List.contains(playerMinx4 + COLUMNS) &&
+            playerMinx4 - COLUMNS > 0 &&
+            player2List.contains(playerMinCell - COLUMNS);
+        if (boundLeftRight) {
+          return null;
+        }
+        return winner;
+      }
+      var horizontally = players.contains(playerMinCell + 1) &&
+          players.contains(playerMinCell + 2) &&
+          players.contains(playerMinCell + 3) &&
+          players.contains(playerMinCell + 4);
+      if (horizontally) {
+        var boundLeftRight = player2List.contains(playerMinCell + 5) &&
+            playerMinCell - 1 > 0 &&
+            player2List.contains(playerMinCell - 1);
+        if (boundLeftRight) {
+          return null;
+        }
+        return winner;
+      }
+      var crossRight = players.contains(playerMinx4 + 4) &&
+          players.contains(playerMinCell + COLUMNS * 3 + 3) &&
+          players.contains(playerMinCell + COLUMNS * 2 + 2) &&
+          players.contains(playerMinCell + COLUMNS + 1);
+      if (crossRight) {
+        var boundLeftRight = player2List.contains(playerMinx4 + COLUMNS + 5) &&
+            playerMinCell - COLUMNS - 1 > 0 &&
+            player2List.contains(playerMinCell - COLUMNS - 1);
+        if (boundLeftRight) {
+          return null;
+        }
+        return winner;
+      }
+      var crossLeft = players.contains(playerMinx4 - 4) &&
+          players.contains(playerMinCell + COLUMNS * 3 - 3) &&
+          players.contains(playerMinCell + COLUMNS * 2 - 2) &&
+          players.contains(playerMinCell + COLUMNS - 1);
+      if (crossLeft) {
+        var boundLeftRight = player2List.contains(playerMinx4 + COLUMNS - 5) &&
+            playerMinCell - COLUMNS - 1 > 0 &&
+            player2List.contains(playerMinCell - COLUMNS + 1);
+        if (boundLeftRight) {
+          return null;
+        }
+        return winner;
+      }
     }
     return null;
   }
@@ -626,8 +650,9 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     );
   }
 
+  static const firstCell = ((COLUMNS * (ROWS ~/ 2)) + (COLUMNS ~/ 2 - 1));
+
   void doFristTurnSingle() {
-    int firstCell = ((COLUMNS * (ROWS ~/ 2 - 1)) + (COLUMNS ~/ 2));
     playGame(firstCell);
   }
 
@@ -768,8 +793,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   }
 
   void doFristTurnWithFriend() {
-    int firstCell = ((COLUMNS * (ROWS ~/ 2 - 1)) + (COLUMNS ~/ 2));
-
     activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
     if (widget.type == PLAYER_SEND_REQ_SCREEN) {
       _opacityTurn = 1.0;
@@ -887,33 +910,32 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
   int processNextTurn(int newCellNumber, int existCellId) {
     int result;
-    if (newCellNumber - existCellId == COLUMNS) {
-      result = newCellNumber + COLUMNS;
-    } else if (newCellNumber - existCellId == -COLUMNS) {
-      result = newCellNumber - COLUMNS;
-    } else if (newCellNumber - existCellId == COLUMNS - 1) {
-      result = newCellNumber + COLUMNS + 1;
-    } else if (newCellNumber - existCellId == COLUMNS + 1) {
-      result = newCellNumber + COLUMNS + 1;
-    } else if (newCellNumber - existCellId == -COLUMNS + 1) {
-      result = newCellNumber - COLUMNS + 1;
-    }else if (newCellNumber - existCellId == -COLUMNS - 1) {
-      result = newCellNumber - COLUMNS - 1;
-    } else if (newCellNumber - existCellId == 1) {
-      result = newCellNumber + 1;
-    } else if (newCellNumber - existCellId + 1 == 0) {
-      result = newCellNumber - 1;
+    if (newCellNumber % COLUMNS == 0 || ((newCellNumber + 1) % COLUMNS == 0)) {
+      newCellNumber = newCellNumber + 1;
+    } else if (newCellNumber < COLUMNS ||
+        (newCellNumber < multiColRow &&
+            newCellNumber > multiColRow - COLUMNS)) {
+      newCellNumber = newCellNumber + COLUMNS;
+    } else {
+      if (newCellNumber - existCellId == COLUMNS) {
+        result = newCellNumber + COLUMNS;
+      } else if (newCellNumber - existCellId == -COLUMNS) {
+        result = newCellNumber - COLUMNS;
+      } else if (newCellNumber - existCellId == COLUMNS - 1) {
+        result = newCellNumber + COLUMNS + 1;
+      } else if (newCellNumber - existCellId == COLUMNS + 1) {
+        result = newCellNumber + COLUMNS + 1;
+      } else if (newCellNumber - existCellId == -COLUMNS + 1) {
+        result = newCellNumber - COLUMNS + 1;
+      } else if (newCellNumber - existCellId == -COLUMNS - 1) {
+        result = newCellNumber - COLUMNS - 1;
+      } else if (newCellNumber - existCellId == 1) {
+        result = newCellNumber + 1;
+      } else if (newCellNumber - existCellId + 1 == 0) {
+        result = newCellNumber - 1;
+      }
     }
 
     return result;
-  }
-
-  void addLineDirection(int cellNumber) {
-    if (cellNumber ~/ COLUMNS == 0) {
-      player1CrossLeft.add(cellNumber);
-      player1HozirontalLine.add(cellNumber);
-      player1CrossLeft.add(cellNumber);
-      player1crossRight.add(cellNumber);
-    } else if (cellNumber ~/ COLUMNS == 1) {}
   }
 }

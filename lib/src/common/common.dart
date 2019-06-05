@@ -38,7 +38,7 @@ const USER_INFO = '/user_info';
 const FRIENDS_LIST = '/friends_list';
 
 const GAME_TBL = 'games_tbl';
-const COLUMNS = 9;
+const COLUMNS = 10;
 const ROWS = 10;
 const SUM = COLUMNS * ROWS;
 const WIN_POINT = 5;

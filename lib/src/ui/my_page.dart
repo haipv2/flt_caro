@@ -44,6 +44,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   MyPageBloc _bloc;
   AnimationController _dialogController;
   Animation<double> _dialogAnimation;
+  Animation<double> _quitAnimation;
 
   @override
   void dispose() {
@@ -62,7 +63,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
         ..load()
         ..show(
           // Positions the banner ad 60 pixels from the bottom of the screen
-        anchorOffset: 0.0,
+          anchorOffset: 0.0,
           // Banner Position
           anchorType: AnchorType.bottom,
         );
@@ -76,6 +77,8 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
 //          _dialogController.reset();
         }
       });
+    _quitAnimation = Tween(begin: -1.0, end: 0.0).animate(
+        CurvedAnimation(parent: _dialogController, curve: Curves.elasticOut));
     _bloc = new MyPageBloc();
     super.initState();
     _controller =
@@ -282,26 +285,30 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
               ),
               onPressed: () {
                 print('Quit');
+                _dialogController.forward();
                 showDialog(
                     context: context,
                     builder: (_) {
-                      return AlertDialog(
-                        title: Text('Quit Game'),
-                        content: Text('Do you want to quit the game ?'),
-                        actions: <Widget>[
-                          FlatButton(
-                            child: new Text('Cancel'),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                          FlatButton(
-                            child: new Text('Yes'),
-                            onPressed: () {
-                              exit(0);
-                            },
-                          )
-                        ],
+                      return GameDialogAnimate(
+                        animation: _quitAnimation,
+                        child: AlertDialog(
+                          title: Text('Quit Game'),
+                          content: Text('Do you want to quit the game ?'),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: new Text('Cancel'),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                            FlatButton(
+                              child: new Text('Yes'),
+                              onPressed: () {
+                                exit(0);
+                              },
+                            )
+                          ],
+                        ),
                       );
                     });
               },
