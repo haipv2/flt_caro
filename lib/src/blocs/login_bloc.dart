@@ -4,11 +4,9 @@ import 'package:ticcar5/src/models/user.dart';
 import 'package:ticcar5/src/resources/repository.dart';
 import 'package:ticcar5/src/utils/validator_utils.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginBloc {
   final _repository = Repository();
-  Future<SharedPreferences> prefs = SharedPreferences.getInstance();
   final _loginIdController = BehaviorSubject<String>();
   final _userPasswordController = BehaviorSubject<String>();
   final _loginStreamController = PublishSubject<bool>();

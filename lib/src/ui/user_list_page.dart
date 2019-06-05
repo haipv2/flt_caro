@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:ticcar5/src/blocs/user_push_bloc.dart';
 import 'package:ticcar5/src/common/common.dart';
@@ -19,6 +21,7 @@ class UserList extends StatefulWidget {
 class _UserListState extends State<UserList> {
   List<User> _users = List<User>();
   UserPushBloc _userPushBloc;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -27,6 +30,28 @@ class _UserListState extends State<UserList> {
     super.initState();
   }
 
+  void dispose() {
+    _userPushBloc.dispose();
+  }
+
+  Widget processUserList() {
+    return StreamBuilder(
+        stream: _userPushBloc.loadingStream,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data) {
+            return ListView.separated(
+                separatorBuilder: (context, index) => Divider(
+                      color: Colors.black,
+                    ),
+                itemCount: _users.length,
+                itemBuilder: (context, index) => buildListRow(context, index));
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +64,7 @@ class _UserListState extends State<UserList> {
             image: DecorationImage(
                 image: AssetImage('assets/images/bg_friends.jpg'),
                 fit: BoxFit.fill)),
-        child: ListView.separated(
-            separatorBuilder: (context, index) => Divider(
-                  color: Colors.black,
-                ),
-            itemCount: _users.length,
-            itemBuilder: (context, index) => buildListRow(context, index)),
+        child: processUserList(),
       ),
     );
   }
@@ -65,14 +85,17 @@ class _UserListState extends State<UserList> {
       );
 
   void fetchUsers(String currentLoginId) async {
-    await _userPushBloc.getAllUserExceptLoginId(currentLoginId).then((usersList) {
+    await _userPushBloc
+        .getAllUserExceptLoginId(currentLoginId)
+        .then((usersList) {
+      _userPushBloc.loadingStreamChange(true);
       usersList.forEach((user) {
         if (currentLoginId == user.loginId) return;
-          if (user != null) {
-            setState(() {
-              _users.add(user);
-            });
-          }
+        if (user != null) {
+          setState(() {
+            _users.add(user);
+          });
+        }
       });
     });
     print('list users size: ${_users.length}');
@@ -124,5 +147,4 @@ class _UserListState extends State<UserList> {
       http.get(dataURL);
     });
   }
-
 }

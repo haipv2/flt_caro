@@ -863,8 +863,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     return Expanded(
       flex: 1,
       child: SizedBox(
-        height: 20.0,
+        height: 10.0,
       ),
-    )
+    );
   }
 }
