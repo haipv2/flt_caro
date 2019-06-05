@@ -20,6 +20,7 @@ import 'game_item.dart';
 import 'game_item_animation.dart';
 import 'my_page.dart';
 import 'user_list_page.dart';
+import 'dart:math';
 
 class Game extends StatefulWidget {
   User player1;
@@ -46,6 +47,10 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   List<GameItemAnimation> itemlist;
   List<int> player1List;
   List<int> player2List;
+  List<int> player1HozirontalLine = [];
+  List<int> player1verticalLine = [];
+  List<int> player1CrossLeft = [];
+  List<int> player1crossRight = [];
   var activePlayer;
   int player1Score = 0;
   int player2Score = 0;
@@ -375,6 +380,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       if (activePlayer == PLAYER_SEND_REQ_SCREEN) {
         itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
         player1List.add(cellNumber);
+        addLineDirection(cellNumber);
         if (widget.gameMode == GameMode.single) {
           activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
         }
@@ -505,17 +511,28 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     }
 
     var tempList = List.from(aroundCell);
+    var cellId;
+    List<int> listExistPlayer1 = [];
+    List<int> listExistPlayer2 = [];
     for (var cellId in tempList) {
       if (player1List.contains(cellId)) {
         aroundCell.remove(cellId);
+        listExistPlayer1.add(cellId);
       }
       if (player2List.contains(cellId)) {
         aroundCell.remove(cellId);
+        listExistPlayer2.add(cellId);
       }
     }
 
+    for (var existCellId in listExistPlayer1) {
+      cellId = processNextTurn(cellNumber, existCellId);
+    }
+
     var r = new Random();
-    var cellId = aroundCell[r.nextInt(aroundCell.length)];
+    if (cellId == null) {
+      cellId = aroundCell[r.nextInt(aroundCell.length)];
+    }
     int i = itemlist.indexWhere((p) => p.child.id == cellId);
     _opacityTurn = 1.0;
     playGame(i);
@@ -863,8 +880,40 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     return Expanded(
       flex: 1,
       child: SizedBox(
-        height: 10.0,
+        height: 5.0,
       ),
     );
+  }
+
+  int processNextTurn(int newCellNumber, int existCellId) {
+    int result;
+    if (newCellNumber - existCellId == COLUMNS) {
+      result = newCellNumber + COLUMNS;
+    } else if (newCellNumber - existCellId == -COLUMNS) {
+      result = newCellNumber - COLUMNS;
+    } else if (newCellNumber - existCellId == COLUMNS - 1) {
+      result = newCellNumber + COLUMNS + 1;
+    } else if (newCellNumber - existCellId == COLUMNS + 1) {
+      result = newCellNumber + COLUMNS + 1;
+    } else if (newCellNumber - existCellId == -COLUMNS + 1) {
+      result = newCellNumber - COLUMNS + 1;
+    }else if (newCellNumber - existCellId == -COLUMNS - 1) {
+      result = newCellNumber - COLUMNS - 1;
+    } else if (newCellNumber - existCellId == 1) {
+      result = newCellNumber + 1;
+    } else if (newCellNumber - existCellId + 1 == 0) {
+      result = newCellNumber - 1;
+    }
+
+    return result;
+  }
+
+  void addLineDirection(int cellNumber) {
+    if (cellNumber ~/ COLUMNS == 0) {
+      player1CrossLeft.add(cellNumber);
+      player1HozirontalLine.add(cellNumber);
+      player1CrossLeft.add(cellNumber);
+      player1crossRight.add(cellNumber);
+    } else if (cellNumber ~/ COLUMNS == 1) {}
   }
 }
