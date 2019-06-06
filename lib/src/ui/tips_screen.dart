@@ -20,22 +20,38 @@ class _TipsScreenState extends State<TipsScreen> {
   Widget build(BuildContext context) {
     final List<Tips> tipsPage = [
       Tips(
-        icon: Icons.account_box,
-//        title: TranslatorLoader.translate(context).text("account"),
+        child: Icon(Icons.account_box,size: 100,),
         title: 'Account',
         description:
-            "Register account to play the game with your friends. They are simple steps and take you few seconds ^_^ ",
+            "Register an account to play game with your friends. Registing steps are simple and just take a few seconds. ^_^ ",
       ),
       Tips(
-        icon: Icons.info_outline,
+        child: Icon(Icons.info_outline,size: 100,),
         title: "Game info",
         description:
-            "\tPlayer who reach 5 sequent items first on a line first will be winner.Horizontally, vertically, crossly are accepted as long as you reach 5 sequent items first. You will be winner.\nThere are 2 modes: Single mode and Play with your friends.",
+            "The player who manages to create an unbroken row of 5 symbles first wins the game. The row can be horizontal, vertical or diagonal.",
       ),
       Tips(
-        icon: Icons.insert_emoticon,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Text('the last rule ', style: TextStyle(color: Colors.white, fontSize: 23),),
+            SizedBox(height: 10,),
+            Align(
+              alignment: Alignment.topCenter,
+              child: Image.asset(
+                'assets/images/guide.jpg',
+              ),
+            ),
+          ],
+        ),
+        title: "",
+        description: "",
+      ),
+      Tips(
+        child: Icon(Icons.insert_emoticon,size: 100,),
         title: "Thanks a lot!!!",
-        description: "Thanks for reading.\n Enjoin ^^!",
+        description: "There are 2 modes: single mode or friend mode. Let's engjoy the game.",
       ),
     ];
     return Scaffold(
@@ -65,16 +81,17 @@ class _TipsScreenState extends State<TipsScreen> {
     List<Widget> widgets = [];
     for (var page in tipsPage) {
       widgets.add(new Container(
-        color: Colors.lime,
+        color: Colors.orange,
         child: ListView(
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(top: 70.0),
-              child: Icon(
-                page.icon,
-                size: 125,
-                color: Colors.blueAccent,
-              ),
+              child: page.child,
+//              Icon(
+//                page.child,
+//                size: 125,
+//                color: Colors.deepOrange,
+//              ),
             ),
             Column(children: <Widget>[
               Center(
@@ -103,8 +120,7 @@ class _TipsScreenState extends State<TipsScreen> {
                         fontSize: 25,
                         fontWeight: FontWeight.w300,
                         fontFamily: "OpenSans"),
-                    children: <TextSpan>[
-                    ],
+                    children: <TextSpan>[],
                   ),
                 ),
 

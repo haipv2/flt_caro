@@ -76,6 +76,7 @@ flutter:
       - assets/images/bg_friends.jpg
       - assets/images/speaker_on.png
       - assets/images/speaker_off.png
+      - assets/images/guide.jpg
       - assets/sound/sound.mp3
   fonts:
     - family: indie flower
