@@ -176,7 +176,7 @@ class _LoginpageState extends State<Loginpage> {
         Scaffold.of(context).showSnackBar(snackbar);
       } else {
         _bloc.doLoginStream(true);
-        SharedPreferencesUtils.saveUserToPreferences(user);
+        SharedPreferencesUtils.saveUser(user);
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MyPage(user)));
       }

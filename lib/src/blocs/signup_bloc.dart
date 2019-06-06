@@ -154,8 +154,8 @@ class SignupBloc extends Object {
 
     UserPushInfo userPushInfo = UserPushInfo(user.loginId, [pushId]);
     await _repository.registerUserPushInfo(userPushInfo);
-    SharedPreferencesUtils.saveUserToPreferences(user);
-    SharedPreferencesUtils.setStringToPreferens(PUSH_ID, pushId);
+    SharedPreferencesUtils.saveUser(user);
+    SharedPreferencesUtils.setString(PUSH_ID, pushId);
 
     return result;
   }

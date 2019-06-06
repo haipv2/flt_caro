@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:audioplayers/audio_cache.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:english_words/english_words.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -22,6 +24,7 @@ import '../common/game_enums.dart';
 import 'game_dialog_animation.dart';
 import 'game_dialog_loser.dart';
 import 'user_info_page.dart' as userInfo;
+import 'widgets/speaker_widget.dart';
 
 class MyPage extends StatefulWidget {
   final User user;
@@ -45,6 +48,8 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   AnimationController _dialogController;
   Animation<double> _dialogAnimation;
   Animation<double> _quitAnimation;
+  AudioPlayer audioPlayer;
+  AudioCache audioCache;
 
   @override
   void dispose() {
@@ -53,8 +58,27 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  initSetting() async {
+    audioPlayer = AudioPlayer(
+      mode: PlayerMode.MEDIA_PLAYER,
+    );
+    audioCache = AudioCache(fixedPlayer: audioPlayer, prefix: 'sound/');
+    audioCache.load(SOUND_FILE);
+    SharedPreferencesUtils.getBool(SETTING_SOUND).then((value) {
+      if (value == true) {
+        audioCache.play(SOUND_FILE);
+      } else if (value == null) {
+        SharedPreferencesUtils.setBool(SETTING_SOUND, true);
+        audioCache.play(SOUND_FILE);
+      } else {
+        audioPlayer.stop();
+      }
+    });
+  }
+
   @override
   void initState() {
+    initSetting();
     FirebaseAdMob.instance
         .initialize(appId: 'ca-app-pub-1526795059370873~4230179110')
         .then((res) {
@@ -176,8 +200,8 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     String fromPushId = getValueFromMapData(message, 'fromPushId');
     String fromId = getValueFromMapData(message, 'fromId');
     User user = widget.user;
-    var pushId = await SharedPreferencesUtils.getStringToPreferens(PUSH_ID)
-        .then((pushId) {});
+    var pushId =
+        await SharedPreferencesUtils.getString(PUSH_ID).then((pushId) {});
     var base = 'https://us-central1-caro-53f7d.cloudfunctions.net';
     String dataURL =
         '$base/resPlayReq?to=$fromPushId&fromPushId=$pushId&fromId=${user.loginId}&fromName=${user.firstname}&fromGender=${user.gender}&type=accept';
@@ -195,7 +219,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     var pushId = await firebaseMessaging.getToken();
 //    var listPushId =
     _bloc.getListPushId(widget.user.loginId).then((listPushId) {
-      SharedPreferencesUtils.setStringToPreferens(PUSH_ID, pushId);
+      SharedPreferencesUtils.setString(PUSH_ID, pushId);
       if (!listPushId.contains(pushId)) {
         listPushId.add(pushId);
         FirebaseDatabase.instance
@@ -396,6 +420,36 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
                   },
                 ),
                 ListTile(
+                  leading: const Icon(Icons.settings),
+                  title: Text('Settings'),
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (_) {
+                          return Dialog(
+                            backgroundColor: Color(0xffF3E2A9),
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(30.0))),
+                            child: Container(
+                              height: 120,
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  Align(
+                                    alignment: Alignment.center,
+                                    child: Text('Enable sould ?'),
+                                  ),
+                                  Speaker(audioPlayer, audioCache),
+                                ],
+                              ),
+                            ),
+                          );
+                        });
+                  },
+                ),
+                ListTile(
                   leading: const Icon(Icons.exit_to_app),
                   title: Text('Logout'),
                   onTap: () {
@@ -423,6 +477,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   void removeUserInfo() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove(USER_PREFS_KEY);
+    prefs.remove(SETTING_SOUND);
   }
 }
 
@@ -435,7 +490,7 @@ MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
 
 BannerAd myBanner = BannerAd(
   adUnitId: 'ca-app-pub-1526795059370873/4825129380',
-  size: AdSize.banner,
+  size: AdSize.smartBanner,
   targetingInfo: targetingInfo,
   listener: (MobileAdEvent event) {
     print("BannerAd event is $event");

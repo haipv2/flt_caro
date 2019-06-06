@@ -50,3 +50,6 @@ const PLAYER_RECEIVE_REQ_SCREEN='second';
 const WINNER='winner';
 const USER_AVA_TAG = 'userAvaTag';
 const SURRENDER='surrender';
+
+const SETTING_SOUND='SOUND';
+const SOUND_FILE='sound.mp3';

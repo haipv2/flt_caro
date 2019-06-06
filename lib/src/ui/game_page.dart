@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-
+import 'package:audioplayers/audioplayers.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +20,7 @@ import 'game_item.dart';
 import 'game_item_animation.dart';
 import 'my_page.dart';
 import 'user_list_page.dart';
+import 'widgets/speaker_widget.dart';
 
 class Game extends StatefulWidget {
   User player1;
@@ -92,7 +93,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         if (key == SURRENDER) {
           String titleSurrenderDialog = 'OPPS!!';
           String contentSurrenderDlg =
-              'You\'re so powerful. Your friend already surrendered LOL';
+              'You\'re so powerful. Your friend already surrendered.';
           var value = event.snapshot.value;
           User surrenderer = User.fromJson(json.decode(value));
           if (widget.player1.loginId != surrenderer.loginId) {
@@ -164,12 +165,14 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
           if (widget.type == PLAYER_SEND_REQ_SCREEN) {
             if (activePlayer == PLAYER_SEND_REQ_SCREEN) {
               _opacityTurn = 1.0;
+              player2List.add(int.parse(key));
             } else {
               _opacityTurn = 0.0;
             }
           } else {
             if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
               _opacityTurn = 1.0;
+              player1List.add(int.parse(key));
             } else {
               _opacityTurn = 0.0;
             }
@@ -223,15 +226,16 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     Widget playerInfo() => Container(
-        color: Colors.orange,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            _buildPlayer(widget.player1),
-            _buildText('VS'),
-            _buildPlayer(widget.player2),
-          ],
-        ));
+          color: Colors.orange,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              _buildPlayer(widget.player1),
+              _buildText('VS'),
+              _buildPlayer(widget.player2),
+            ],
+          ),
+        );
 
     return new Scaffold(
       key: _scaffoldKey,
@@ -413,6 +417,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
     //check user 1 win
     if (widget.gameMode == GameMode.friends) {
+      List tmpList = [];
       if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
         winner = doReferee(player2List, activePlayer, id);
       } else {
@@ -427,6 +432,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         winner = doReferee(player2List, activePlayer, id);
       }
     }
+
     if (winner != null) {
       setState(() {
         if (widget.gameMode == GameMode.single) {
@@ -737,14 +743,14 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                 '${widget.player1.firstname}',
                 style: TextStyle(
                   fontFamily: 'indie flower',
-                  fontSize: 23,
+                  fontSize: 20,
                 ),
               ),
               Padding(
                 padding: EdgeInsets.only(left: 15),
                 child: Text('${player1Score}',
                     style: TextStyle(
-                      fontSize: 25,
+                      fontSize: 23,
                     )),
               )
             ],
@@ -759,7 +765,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                     child: Center(
                         child: Text(
                   ':',
-                  style: TextStyle(fontSize: 40),
+                  style: TextStyle(fontSize: 30),
                 ))),
               ],
             ),
@@ -776,15 +782,18 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                     padding: const EdgeInsets.only(right: 15),
                     child: Text(
                       '$player2Score',
-                      style: TextStyle(fontSize: 25),
+                      style: TextStyle(fontSize: 23),
                       textAlign: TextAlign.left,
                     ),
                   )),
-              Text('${widget.player2.firstname}',
-                  style: TextStyle(
-                    fontFamily: 'indie flower',
-                    fontSize: 23,
-                  )),
+              AutoSizeText(
+                '${widget.player2.firstname}',
+                style: TextStyle(
+                  fontFamily: 'indie flower',
+                  fontSize: 20,
+                ),
+                maxLines: 2,
+              ),
             ],
           ),
         )
@@ -938,4 +947,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
     return result;
   }
+
+  _toggleSound() {}
 }

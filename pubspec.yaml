@@ -27,9 +27,10 @@ dependencies:
   english_words: ^3.1.0
   auto_size_text: ^1.1.2
   flutter_swiper: ^1.1.6
-  #cupertino_icons: ^0.1.2
+  cupertino_icons: ^0.1.2
   rxdart: ^0.21.0
   firebase_admob: 0.8.0+4
+  audioplayers: ^0.12.1
 
 #  firebase_admob: ^0.8.0+4
 #  firebase_admob: ^0.9.0+1
@@ -73,6 +74,9 @@ flutter:
       - assets/images/bg.jpeg
       - assets/images/bg_userInfo.jpg
       - assets/images/bg_friends.jpg
+      - assets/images/speaker_on.png
+      - assets/images/speaker_off.png
+      - assets/sound/sound.mp3
   fonts:
     - family: indie flower
       fonts:

@@ -125,7 +125,7 @@ class _UserListState extends State<UserList> {
   }
 
   challenge(User user) async {
-    var pushIdFrom = await SharedPreferencesUtils.getStringToPreferens(PUSH_ID);
+    var pushIdFrom = await SharedPreferencesUtils.getString(PUSH_ID);
 
     List<dynamic> pushIds =
         await _userPushBloc.getListPushIdViaLoginId(user.loginId);
