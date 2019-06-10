@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'package:audioplayers/audioplayers.dart';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +20,6 @@ import 'game_item.dart';
 import 'game_item_animation.dart';
 import 'my_page.dart';
 import 'user_list_page.dart';
-import 'widgets/speaker_widget.dart';
 
 class Game extends StatefulWidget {
   User player1;
@@ -270,8 +269,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                                   onPressed: itemlist[i].child.enabled
                                       ? () => playGame(i)
                                       : null,
-                                  child: itemlist[i],
-//                                  child: Text('$i'),
+//                                  child: itemlist[i],
+                                  child: Text('$i'),
                                   color: itemlist[i].child.bg,
                                   disabledColor: itemlist[i].child.bg,
                                 ),
@@ -919,34 +918,151 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
   int processNextTurn(int newCellNumber, int existCellId) {
     int result;
-    if (newCellNumber % COLUMNS == 0 || ((newCellNumber + 1) % COLUMNS == 0)) {
-      newCellNumber = newCellNumber + 1;
-    } else if (newCellNumber < COLUMNS ||
-        (newCellNumber < multiColRow &&
-            newCellNumber > multiColRow - COLUMNS)) {
-      newCellNumber = newCellNumber + COLUMNS;
-    } else {
-      if (newCellNumber - existCellId == COLUMNS) {
-        result = newCellNumber + COLUMNS;
-      } else if (newCellNumber - existCellId == -COLUMNS) {
-        result = newCellNumber - COLUMNS;
-      } else if (newCellNumber - existCellId == COLUMNS - 1) {
-        result = newCellNumber + COLUMNS + 1;
-      } else if (newCellNumber - existCellId == COLUMNS + 1) {
-        result = newCellNumber + COLUMNS + 1;
-      } else if (newCellNumber - existCellId == -COLUMNS + 1) {
-        result = newCellNumber - COLUMNS + 1;
-      } else if (newCellNumber - existCellId == -COLUMNS - 1) {
-        result = newCellNumber - COLUMNS - 1;
-      } else if (newCellNumber - existCellId == 1) {
-        result = newCellNumber + 1;
-      } else if (newCellNumber - existCellId + 1 == 0) {
-        result = newCellNumber - 1;
+    List<int> maxVerticalList = [];
+    List<int> maxHorizpmtalList = [];
+    List<int> maxCrossRightList = [];
+    List<int> maxCrossLeftList = [];
+
+    //vertically
+    var columnIndexVertical = newCellNumber % COLUMNS;
+    int maxVertical =
+        getMaxVertial(newCellNumber, columnIndexVertical, maxVerticalList);
+    var columnIndexHorizontal = newCellNumber ~/ COLUMNS;
+    int maxHorizontal = getMaxHorizontal(
+        newCellNumber, columnIndexHorizontal, maxHorizpmtalList);
+    int maxCrossRight = getMaxCrossRight(newCellNumber);
+    int maxCrossLeft = getMaxCrossLeft(newCellNumber);
+    List<int> player1Line = [
+      maxVertical,
+      maxHorizontal,
+      maxCrossLeft,
+      maxCrossRight
+    ]..sort((a, b) => b.compareTo(a));
+    for (int i in player1Line) {
+      if (i == maxVertical) {
+        if (checkBoundVerticalFree(maxVerticalList)) {
+          result = buildNextVertialCell(maxVerticalList);
+        } else if (checkBoundHorizontalFree(maxHorizpmtalList)) {
+          result = buildNextHorizontalCell(maxVerticalList);
+        }
       }
     }
+    print(maxVertical);
+
+//    if (newCellNumber % COLUMNS == 0 || ((newCellNumber + 1) % COLUMNS == 0)) {
+//      newCellNumber = newCellNumber + 1;
+//    } else if (newCellNumber < COLUMNS ||
+//        (newCellNumber < multiColRow &&
+//            newCellNumber > multiColRow - COLUMNS)) {
+//      newCellNumber = newCellNumber + COLUMNS;
+//    } else {
+//      if (newCellNumber - existCellId == COLUMNS) {
+//        result = newCellNumber + COLUMNS;
+//      } else if (newCellNumber - existCellId == -COLUMNS) {
+//        result = newCellNumber - COLUMNS;
+//      } else if (newCellNumber - existCellId == COLUMNS - 1) {
+//        result = newCellNumber + COLUMNS + 1;
+//      } else if (newCellNumber - existCellId == COLUMNS + 1) {
+//        result = newCellNumber + COLUMNS + 1;
+//      } else if (newCellNumber - existCellId == -COLUMNS + 1) {
+//        result = newCellNumber - COLUMNS + 1;
+//      } else if (newCellNumber - existCellId == -COLUMNS - 1) {
+//        result = newCellNumber - COLUMNS - 1;
+//      } else if (newCellNumber - existCellId == 1) {
+//        result = newCellNumber + 1;
+//      } else if (newCellNumber - existCellId + 1 == 0) {
+//        result = newCellNumber - 1;
+//      }
+//    }
 
     return result;
   }
 
-  _toggleSound() {}
+  int getMaxVertial(
+      int newCellNumber, int columnIndex, List<int> maxVerticalList) {
+    int result = 0;
+    for (columnIndex; columnIndex < multiColRow;) {
+      if (player1List.contains(columnIndex)) {
+        result += 1;
+        maxVerticalList.add(columnIndex);
+        columnIndex += columnIndex;
+      }
+    }
+    return result;
+  }
+
+  int getMaxHorizontal(
+      int newCellNumber, int columnIndex, List<int> maxHorizpmtalList) {
+    int result = 0;
+    for (columnIndex; columnIndex < columnIndex + COLUMNS - 1;) {
+      if (player1List.contains(columnIndex)) {
+        result += 1;
+        maxHorizpmtalList.add(columnIndex);
+        columnIndex++;
+      }
+    }
+    return result;
+  }
+
+  int getMaxCrossRight(int newCellNumber) {}
+
+  int getMaxCrossLeft(int newCellNumber) {}
+
+  bool checkBoundVerticalFree(maxVerticalList) {
+    if (maxVerticalList.length < 2) {
+      return true;
+    }
+    if (maxVerticalList[0] > COLUMNS) {
+      if (player2List.contains(maxVerticalList[0] - COLUMNS) &&
+          player2List.contains(
+              maxVerticalList[maxVerticalList.length - 1] + COLUMNS)) {
+        return false;
+      }
+    } else {
+      if (player2List
+          .contains(maxVerticalList[maxVerticalList.length - 1] + COLUMNS)) {
+        return false;
+      }
+    }
+    if (maxVerticalList[maxVerticalList.length - 1] ~/ COLUMNS == COLUMNS) {
+      if (player2List.contains(maxVerticalList[0] - COLUMNS)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  int buildNextVertialCell(maxVertialList) {
+    var r = new Random();
+    return maxVertialList[r.nextInt(maxVertialList.length)];
+  }
+
+  bool checkBoundHorizontalFree(List<int> maxHorizpmtalList) {
+    if (maxHorizpmtalList.length < 2) {
+      return true;
+    }
+    if (maxHorizpmtalList[0] % COLUMNS == 0) {
+      if (player2List
+          .contains(maxHorizpmtalList[maxHorizpmtalList.length - 1] + 1)) {
+        return false;
+      }
+    } else {
+      if (player2List.contains(maxHorizpmtalList[0] - 1) &&
+          player2List
+              .contains(maxHorizpmtalList[maxHorizpmtalList.length - 1] + 1)) {
+        return false;
+      }
+    }
+    if (maxHorizpmtalList[maxHorizpmtalList.length - 1] % COLUMNS == 1) {
+      if (player2List.contains(maxHorizpmtalList[0] - 1)){
+        return false;
+      }
+    }
+    return true;
+  }
+
+  int buildNextHorizontalCell(List<int> maxHorizontalList) {
+    var r = new Random();
+    return maxHorizontalList[r.nextInt(maxHorizontalList.length)];
+  }
 }
