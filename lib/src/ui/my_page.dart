@@ -80,7 +80,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   void initState() {
     initSetting();
     FirebaseAdMob.instance
-        .initialize(appId: 'ca-app-pub-4625968058800017~1707037686')
+        .initialize(appId: 'ca-app-pub-1526795059370873~7794137146')
         .then((res) {
       myBanner
         // typically this happens well before the ad is shown
@@ -482,14 +482,14 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
 }
 
 MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
-  keywords: <String>['flutterio', 'beautiful apps'],
+  keywords: <String>['flutterio', 'T-Caro5'],
   contentUrl: 'https://flutter.io',
   childDirected: false,
   testDevices: <String>[], // Android emulators are considered test devices
 );
 
 BannerAd myBanner = BannerAd(
-  adUnitId: 'ca-app-pub-4625968058800017/6523362043',
+  adUnitId: 'ca-app-pub-1526795059370873/9882132483',
   size: AdSize.smartBanner,
   targetingInfo: targetingInfo,
   listener: (MobileAdEvent event) {

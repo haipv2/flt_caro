@@ -948,5 +948,4 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     return result;
   }
 
-  _toggleSound() {}
 }
