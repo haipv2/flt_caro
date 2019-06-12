@@ -378,12 +378,14 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       if (activePlayer == PLAYER_SEND_REQ_SCREEN) {
         itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
         player1List.add(cellNumber);
+        player1List.sort();
         if (widget.gameMode == GameMode.single) {
           activePlayer = PLAYER_RECEIVE_REQ_SCREEN;
         }
       } else {
         itemlist.replaceRange(cellNumber, cellNumber + 1, newGameItemAnimation);
         player2List.add(cellNumber);
+        player2List.sort();
         if (widget.gameMode == GameMode.single) {
           activePlayer = PLAYER_SEND_REQ_SCREEN;
         }
@@ -930,8 +932,10 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     var columnIndexHorizontal = newCellNumber ~/ COLUMNS;
     int maxHorizontal = getMaxHorizontal(
         newCellNumber, columnIndexHorizontal, maxHorizpmtalList);
-    int maxCrossRight = getMaxCrossRight(newCellNumber);
-    int maxCrossLeft = getMaxCrossLeft(newCellNumber);
+    int maxCrossRight = getMaxCrossRight(
+        newCellNumber, columnIndexHorizontal, maxCrossRightList);
+    int maxCrossLeft =
+        getMaxCrossLeft(newCellNumber, columnIndexHorizontal, maxCrossLeftList);
     List<int> player1Line = [
       maxVertical,
       maxHorizontal,
@@ -942,12 +946,25 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       if (i == maxVertical) {
         if (checkBoundVerticalFree(maxVerticalList)) {
           result = buildNextVertialCell(maxVerticalList);
-        } else if (checkBoundHorizontalFree(maxHorizpmtalList)) {
+        } else
+          continue;
+      } else if (i == maxHorizontal) {
+        if (checkBoundHorizontalFree(maxHorizpmtalList)) {
           result = buildNextHorizontalCell(maxVerticalList);
-        }
+        } else
+          continue;
+      } else if (i == maxCrossRight) {
+        if (checkBoundCrossRightFree(maxHorizpmtalList)) {
+          result = buildNextCrossRightCell(maxVerticalList);
+        } else
+          continue;
+      } else if (i == maxCrossLeft) {
+        if (checkBoundCrossLeftFree(maxHorizpmtalList)) {
+          result = buildNextCrossLeftCell(maxVerticalList);
+        } else
+          continue;
       }
     }
-    print(maxVertical);
 
 //    if (newCellNumber % COLUMNS == 0 || ((newCellNumber + 1) % COLUMNS == 0)) {
 //      newCellNumber = newCellNumber + 1;
@@ -980,12 +997,12 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
   int getMaxVertial(
       int newCellNumber, int columnIndex, List<int> maxVerticalList) {
-    int result = 0;
-    for (columnIndex; columnIndex < multiColRow;) {
-      if (player1List.contains(columnIndex)) {
+    int result = 1;
+    for (var item in player1List) {
+      if (item != newCellNumber &&
+          (newCellNumber - item).abs() % COLUMNS == 0) {
+        maxVerticalList.add(item);
         result += 1;
-        maxVerticalList.add(columnIndex);
-        columnIndex += columnIndex;
       }
     }
     return result;
@@ -993,20 +1010,51 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
   int getMaxHorizontal(
       int newCellNumber, int columnIndex, List<int> maxHorizpmtalList) {
-    int result = 0;
-    for (columnIndex; columnIndex < columnIndex + COLUMNS - 1;) {
-      if (player1List.contains(columnIndex)) {
+    int result = 1;
+    List<int> tempList=[];
+    for (var item in player1List) {
+      if (item != newCellNumber && (newCellNumber - item).abs() < COLUMNS) {
         result += 1;
         maxHorizpmtalList.add(columnIndex);
-        columnIndex++;
       }
     }
     return result;
   }
 
-  int getMaxCrossRight(int newCellNumber) {}
+  int getMaxCrossRight(int newCellNumber, int columnIndexHorizontal,
+      List<int> maxCrossRightList) {
+    int result = 1;
+    for (var item in player1List) {
+      if (item != newCellNumber &&
+          (newCellNumber - item).abs() - COLUMNS < COLUMNS) {
+        maxCrossRightList.add(newCellNumber);
+        result += 1;
+      }
+    }
+    return result;
+  }
 
-  int getMaxCrossLeft(int newCellNumber) {}
+  int getMaxCrossLeft(
+      int newCellNumber, int columnIndexCrossLeft, List<int> maxCrossLeftList) {
+    int result = 1;
+    for (var item in player1List) {
+      int tmp = 1;
+      List<int> tmpList = [];
+      for (var i = 1; i < COLUMNS; i++) {
+        if (newCellNumber - item == COLUMNS * i + i) {
+          tmp += 1;
+          tmpList.add(newCellNumber);
+          result = tmp;
+          maxCrossLeftList = tmpList;
+        }
+      }
+      if (result < tmp) {
+        result = tmp;
+        maxCrossLeftList = tmpList;
+      }
+    }
+    return result;
+  }
 
   bool checkBoundVerticalFree(maxVerticalList) {
     if (maxVerticalList.length < 2) {
@@ -1054,7 +1102,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       }
     }
     if (maxHorizpmtalList[maxHorizpmtalList.length - 1] % COLUMNS == 1) {
-      if (player2List.contains(maxHorizpmtalList[0] - 1)){
+      if (player2List.contains(maxHorizpmtalList[0] - 1)) {
         return false;
       }
     }
@@ -1065,4 +1113,12 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     var r = new Random();
     return maxHorizontalList[r.nextInt(maxHorizontalList.length)];
   }
+
+  bool checkBoundCrossRightFree(List<int> maxHorizpmtalList) {}
+
+  int buildNextCrossRightCell(List<int> maxVerticalList) {}
+
+  bool checkBoundCrossLeftFree(List<int> maxHorizpmtalList) {}
+
+  int buildNextCrossLeftCell(List<int> maxVerticalList) {}
 }
