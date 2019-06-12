@@ -398,7 +398,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         return;
       }
       if (widget.gameMode == GameMode.single) {
-        int timeForAi = 50 + Random().nextInt(250);
+        int timeForAi = 300 + Random().nextInt(250);
         print('Time for AI: $timeForAi');
         Timer(Duration(milliseconds: timeForAi), () {
           activePlayer == PLAYER_RECEIVE_REQ_SCREEN
