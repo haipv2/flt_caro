@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:ticcar5/src/blocs/user_push_bloc.dart';
 import 'package:ticcar5/src/common/common.dart';
@@ -29,7 +27,7 @@ class _UserListState extends State<UserList> {
     fetchUsers(widget.currentUser.loginId);
     super.initState();
   }
-
+  @override
   void dispose() {
     _userPushBloc.dispose();
   }

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +19,6 @@ import 'game_item.dart';
 import 'game_item_animation.dart';
 import 'my_page.dart';
 import 'user_list_page.dart';
-import 'widgets/speaker_widget.dart';
 
 class Game extends StatefulWidget {
   User player1;
@@ -307,7 +305,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       winnerName = widget.player1.firstname;
     }
     _dialogController.forward();
-    var titleDialogWinner = "Player ${winnerName} Won";
+    var titleDialogWinner = "Player $winnerName Won";
     if (widget.gameMode == GameMode.friends) {
       pushToLoser(winner);
       showDialog(
@@ -403,9 +401,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         Timer(Duration(milliseconds: timeForAi), () {
           activePlayer == PLAYER_RECEIVE_REQ_SCREEN
               ? autoPlay(cellNumber)
-              : null;
+              : print('active player $activePlayer');
         });
-//        }
       }
     });
   }
@@ -417,7 +414,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
 
     //check user 1 win
     if (widget.gameMode == GameMode.friends) {
-      List tmpList = [];
       if (activePlayer == PLAYER_RECEIVE_REQ_SCREEN) {
         winner = doReferee(player2List, activePlayer, id);
       } else {
@@ -445,6 +441,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       });
       return winner;
     }
+    return winner;
   }
 
   static const multiColRow = COLUMNS * ROWS;
@@ -748,7 +745,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
               ),
               Padding(
                 padding: EdgeInsets.only(left: 15),
-                child: Text('${player1Score}',
+                child: Text('$player1Score',
                     style: TextStyle(
                       fontSize: 23,
                     )),

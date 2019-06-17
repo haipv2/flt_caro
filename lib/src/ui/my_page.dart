@@ -126,7 +126,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) {
         print("onMessage: $message");
-        handleMessage(message);
+       handleMessage(message);
       },
       onLaunch: (Map<String, dynamic> message) {
         print("onLaunch: $message");
@@ -485,7 +485,7 @@ MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
   keywords: <String>['flutterio', 'T-Caro5'],
   contentUrl: 'https://flutter.io',
   childDirected: false,
-  testDevices: <String>[], // Android emulators are considered test devices
+  testDevices: <String>[''], // Android emulators are considered test devices
 );
 
 BannerAd myBanner = BannerAd(

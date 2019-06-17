@@ -171,7 +171,7 @@ class FirestoreProvider {
   }
 
   Future<void> playGameWithFriend(String gameId, activePlayer) async {
-    await FirebaseDatabase.instance
+    FirebaseDatabase.instance
         .reference()
         .child(GAME_TBL)
         .child(gameId)

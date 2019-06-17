@@ -92,7 +92,6 @@ class SignupBloc extends Object {
         if (0 != _confirmPasswordController.value.compareTo(s)) {
           _confirmPasswordController.sink.addError('Password does not match.');
         }
-        ;
       });
 
   Observable<String> get passwordConfirmStream =>

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:ticcar5/src/common/common.dart';
 import 'package:ticcar5/src/utils/shared_preferences_utils.dart';

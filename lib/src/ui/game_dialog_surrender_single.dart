@@ -1,7 +1,5 @@
-import 'package:ticcar5/src/models/user.dart';
 import 'package:flutter/material.dart';
 
-import 'my_page.dart';
 
 class GameDialogSurrenderSingle extends StatelessWidget {
   final title;
